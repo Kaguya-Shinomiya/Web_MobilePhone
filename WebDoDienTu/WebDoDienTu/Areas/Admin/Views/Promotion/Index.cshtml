@@ -1,0 +1,269 @@
+﻿@model WebDoDienTu.ViewModels.PromotionViewModel
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Danh mục voucher</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li class="breadcrumb-item active">Voucher</li>
+        </ol>
+        <div class="card mb-4">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalId">
+                    <a style="text-decoration: none; color: white">Thêm voucher</a>
+                </button>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-table me-1"></i>
+            </div>
+            <div class="card-body">
+                <table id="datatablesSimple">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Code</th>
+                            <th>DiscountAmount</th>
+                            <th>DiscountPercentage</th>
+                            <th>MinimumOrderAmount</th>
+                            <th>IsPercentage</th>
+                            <th>StartDate</th>
+                            <th>EndDate</th>
+                            <th>IsActive</th>
+                            <th>Sửa</th>
+                            <th>Xóa</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>STT</th>
+                            <th>Code</th>
+                            <th>DiscountAmount</th>
+                            <th>DiscountPercentage</th>
+                            <th>MinimumOrderAmount</th>
+                            <th>IsPercentage</th>
+                            <th>StartDate</th>
+                            <th>EndDate</th>
+                            <th>IsActive</th>
+                            <th>Sửa</th>
+                            <th>Xóa</th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+
+                        @{
+                            int soThuTu = 1;
+                        }
+
+                        @foreach (var item in Model.Promotions)
+                        {
+                            <tr>
+                                <td>@soThuTu</td>
+                                <td>@Html.DisplayFor(modelItem => item.Code)</td>
+                                <td>@Html.DisplayFor(modelItem => item.DiscountAmount)</td>
+                                <td>@Html.DisplayFor(modelItem => item.DiscountPercentage)</td>
+                                <td>@Html.DisplayFor(modelItem => item.MinimumOrderAmount)</td>
+                                <td>@Html.DisplayFor(modelItem => item.IsPercentage)</td>
+                                <td>@Html.DisplayFor(modelItem => item.StartDate)</td>
+                                <td>@Html.DisplayFor(modelItem => item.EndDate)</td>
+                                <td>@Html.DisplayFor(modelItem => item.IsActive)</td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary">Sửa</a>
+                                </td>
+                                <td>
+                                    <form asp-action="Delete" asp-route-id="@item.Id">                                        
+                                        <input type="submit" value="Xóa" class="btn btn-danger" />
+                                    </form>
+                                </td>
+                            </tr>
+                            soThuTu++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Modal Create New Promotion -->
+<form asp-action="CreateNewPromotion">
+    <div class="modal fade" id="modalId" tabindex="-1" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitleId">Create New Promotion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">                
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group mb-3">
+                        <label asp-for="Promotion.Code" class="control-label"></label>
+                        <input asp-for="Promotion.Code" class="form-control" />
+                        <span asp-validation-for="Promotion.Code" class="text-danger"></span>
+                    </div>
+                    <div class="form-group discount-amount-field mb-3">
+                        <label asp-for="Promotion.DiscountAmount" class="control-label"></label>
+                        <input asp-for="Promotion.DiscountAmount" class="form-control"/>
+                        <span asp-validation-for="Promotion.DiscountAmount" class="text-danger"></span>
+                    </div>
+                    <div class="form-group discount-percentage-field mb-3">
+                        <label asp-for="Promotion.DiscountPercentage" class="control-label"></label>
+                        <input asp-for="Promotion.DiscountPercentage" class="form-control" />
+                        <span asp-validation-for="Promotion.DiscountPercentage" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="Promotion.MinimumOrderAmount" class="control-label"></label>
+                        <input asp-for="Promotion.MinimumOrderAmount" class="form-control" />
+                        <span asp-validation-for="Promotion.MinimumOrderAmount" class="text-danger"></span>
+                    </div>
+                    <div class="form-group is-percentage-field form-check mb-3">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="Promotion.IsPercentage" /> @Html.DisplayNameFor(model => model.Promotion.IsPercentage)
+                        </label>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="Promotion.StartDate" class="control-label"></label>
+                        <input asp-for="Promotion.StartDate" class="form-control" />
+                        <span asp-validation-for="Promotion.StartDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="Promotion.EndDate" class="control-label"></label>
+                        <input asp-for="Promotion.EndDate" class="form-control" />
+                        <span asp-validation-for="Promotion.EndDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group form-check mb-3">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="Promotion.IsActive"/> @Html.DisplayNameFor(model => model.Promotion.IsActive)
+                        </label>
+                    </div>           
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const isPercentageCheckbox = document.querySelector("#Promotion_IsPercentage");
+        const discountAmountField = document.querySelector(".discount-amount-field input");
+        const discountPercentageField = document.querySelector(".discount-percentage-field input");
+        const isPercentageContainer = document.querySelector(".is-percentage-field input");
+
+        function toggleDiscountAmount() {
+            if (isPercentageCheckbox.checked) {
+                discountAmountField.disabled = true;
+                discountAmountField.value = '';
+            } else {
+                discountAmountField.disabled = false;
+            }
+        }
+
+        function toggleFields() {
+            if (discountAmountField.value) {
+                isPercentageContainer.disabled = true;
+                discountPercentageField.disabled = true;
+                discountPercentageField.value = '';
+            } else {
+                isPercentageContainer.disabled = false;
+                discountPercentageField.disabled = false;
+            }
+        }
+
+        function toggleFields1() {
+            if (discountPercentageField.value) {
+                isPercentageCheckbox.checked = true;
+                discountAmountField.disabled = true;
+                discountAmountField.value = '';
+
+            } else {
+                discountAmountField.disabled = false;
+                isPercentageCheckbox.checked = false;
+            }
+        }
+
+        toggleDiscountAmount();
+        isPercentageCheckbox.addEventListener("change", toggleDiscountAmount);
+        discountAmountField.addEventListener("input", toggleFields);
+        discountPercentageField.addEventListener("input", toggleFields1);
+        toggleFields();
+        toggleFields1();
+    });
+</script>
+
+
+
+<!-- Modal Edit Promotion -->
+<form asp-action="Edit">
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitleId">Edit Promotion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">                
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Promotion.Id" />
+                    <div class="form-group">
+                        <label asp-for="Promotion.Code" class="control-label"></label>
+                        <input asp-for="Promotion.Code" class="form-control" />
+                        <span asp-validation-for="Promotion.Code" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Promotion.DiscountAmount" class="control-label"></label>
+                        <input asp-for="Promotion.DiscountAmount" class="form-control" />
+                        <span asp-validation-for="Promotion.DiscountAmount" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Promotion.DiscountPercentage" class="control-label"></label>
+                        <input asp-for="Promotion.DiscountPercentage" class="form-control" />
+                        <span asp-validation-for="Promotion.DiscountPercentage" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Promotion.MinimumOrderAmount" class="control-label"></label>
+                        <input asp-for="Promotion.MinimumOrderAmount" class="form-control" />
+                        <span asp-validation-for="Promotion.MinimumOrderAmount" class="text-danger"></span>
+                    </div>
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="Promotion.IsPercentage" /> @Html.DisplayNameFor(model => model.Promotion.IsPercentage)
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Promotion.StartDate" class="control-label"></label>
+                        <input asp-for="Promotion.StartDate" class="form-control" />
+                        <span asp-validation-for="Promotion.StartDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Promotion.EndDate" class="control-label"></label>
+                        <input asp-for="Promotion.EndDate" class="form-control" />
+                        <span asp-validation-for="Promotion.EndDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="Promotion.IsActive" /> @Html.DisplayNameFor(model => model.Promotion.IsActive)
+                        </label>
+                    </div>            
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

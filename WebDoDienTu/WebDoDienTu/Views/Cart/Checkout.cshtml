@@ -1,0 +1,88 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@model Order
+
+@{
+    ViewData["Title"] = "Checkout";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (TempData["ModelState"] != null)
+{
+    @using Newtonsoft.Json
+    var err = @Html.Raw(JsonConvert.SerializeObject(TempData["ModelState"]));
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            Swal.fire({
+                title: 'Thông báo',
+                text: '@err',
+                icon: 'warning',
+                showConfirmButton: false,
+                showCancelButton: true,
+            });
+        });
+    </script>
+}
+
+
+<!-- Single Page Header start -->
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">@Localizer["Checkout"]</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">@Localizer["Home"]</a></li>
+        <li class="breadcrumb-item active text-white">@Localizer["Checkout"]</li>
+    </ol>
+</div>
+<!-- Single Page Header End -->
+
+<!-- Checkout Page Start -->
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <h1 class="mb-4">@Localizer["OrderInformation"]</h1>
+        <form asp-action="Checkout" method="post">
+            <div class="row g-5">
+                <div class="col-md-12 col-lg-6 col-xl-7 border pb-5">
+                    <div class="row">
+                        <div class="col-md-12 col-lg-6">
+                            <div class="form-item w-100">
+                                <label asp-for="FirstName" class="form-label my-3">@Localizer["FirstName"]<sup>*</sup></label>
+                                <input asp-for="FirstName" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-12 col-lg-6">
+                            <div class="form-item w-100">
+                                <label asp-for="LastName" class="form-label my-3">@Localizer["LastName"]<sup>*</sup></label>
+                                <input asp-for="LastName" type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-item">
+                        <label asp-for="Phone" class="form-label my-3">@Localizer["Phone"]<sup>*</sup></label>
+                        <input asp-for="Phone" type="text" class="form-control">
+                    </div>
+                    <div class="form-item">
+                        <label asp-for="Email" class="form-label my-3">@Localizer["Email"]<sup>*</sup></label>
+                        <input asp-for="Email" type="email" class="form-control">
+                    </div>
+                    <div class="form-item">
+                        <label asp-for="Address" class="form-label my-3">@Localizer["Address"] <sup>*</sup></label>
+                        <input asp-for="Address" type="text" class="form-control">
+                    </div>
+                    <br />
+                    <div class="form-item">
+                        <label asp-for="Notes" class="form-label my-3">@Localizer["Notes"]</label>
+                        <textarea asp-for="Notes" class="form-control" spellcheck="false" cols="30" rows="11" placeholder="@Localizer["OrderNotesPlaceholder"]"></textarea>
+                    </div>
+                </div>
+                <div class="col-md-12 col-lg-6 col-xl-5">
+                    <div class="row g-4 text-center align-items-center justify-content-center pt-4">
+                        <input type="submit" name="payment" class="btn border-secondary text-uppercase text-primary w-100 mt-2" value="@Localizer["PlaceOrderCOD"]">
+                        <input type="submit" name="payment" class="btn border-secondary text-uppercase text-primary w-100 mt-2" value="@Localizer["PlaceOrderVNPay"]">
+                        <input type="submit" name="payment" class="btn border-secondary text-uppercase text-primary w-100 mt-2" value="@Localizer["PlaceOrderPayPal"]" />
+                        <a asp-controller="Product" asp-action="Index" class="btn border-secondary py-3 px-4 text-uppercase w-100 text-primary">@Localizer["ContinueShopping"]</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Checkout Page End -->

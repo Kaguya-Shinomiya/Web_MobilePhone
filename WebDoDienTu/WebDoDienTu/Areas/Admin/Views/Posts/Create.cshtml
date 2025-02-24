@@ -1,0 +1,62 @@
+﻿@model WebDoDienTu.Models.Post
+
+@{
+    ViewData["Title"] = "Create Post";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Thêm bài viết mới</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a asp-area="admin" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li class="breadcrumb-item active">Create Post</li>
+        </ol>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4>Thông tin bài viết</h4>
+                <hr />
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="form-group mt-3">
+                        <label asp-for="Title" class="control-label"></label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="form-group mt-3">
+                        <label asp-for="Content" class="control-label"></label>
+                        <textarea asp-for="Content" class="form-control" style="height: 300px"></textarea>
+                        <span asp-validation-for="Content" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="form-group mt-3">
+                        <label asp-for="ImageUrl" class="control-label"></label>
+                        <input asp-for="ImageUrl" name="imageFile" class="form-control" type="file" accept="image/*" />
+                        <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="form-group mt-3">
+                        <label asp-for="CategoryId" class="control-label"></label>
+                        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories"></select>
+                        <span asp-validation-for="CategoryId" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="form-group form-check mt-3">
+                        <input asp-for="IsPublished" class="form-check-input" />
+                        <label asp-for="IsPublished" class="form-check-label"></label>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <input type="submit" value="Create" class="btn btn-primary" />
+                    </div>
+                </form>
+                
+                <div>
+                    <a asp-action="Index">Trở về</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

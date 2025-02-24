@@ -1,0 +1,88 @@
+﻿@model IEnumerable<WebDoDienTu.Models.Order>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Danh mục đơn hàng</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li class="breadcrumb-item active">Order</li>
+        </ol>
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-table me-1"></i>
+            </div>
+            <div class="card-body">
+                <table id="datatablesSimple">
+                    <thead>
+                        <tr>
+                            <th>@Html.DisplayNameFor(model => model.LastName)</th>
+                            <th>@Html.DisplayNameFor(model => model.Phone)</th>
+                            <th>@Html.DisplayNameFor(model => model.Email)</th>
+                            <th>@Html.DisplayNameFor(model => model.Address)</th>
+                            <th>@Html.DisplayNameFor(model => model.OrderDate)</th>
+                            <th>@Html.DisplayNameFor(model => model.TotalPrice)</th>
+                            <th>@Html.DisplayNameFor(model => model.Status)</th>
+                            <th>Xem</th>
+                            <th>Xóa</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>@Html.DisplayNameFor(model => model.LastName)</th>
+                            <th>@Html.DisplayNameFor(model => model.Phone)</th>
+                            <th>@Html.DisplayNameFor(model => model.Email)</th>
+                            <th>@Html.DisplayNameFor(model => model.Address)</th>
+                            <th>@Html.DisplayNameFor(model => model.OrderDate)</th>
+                            <th>@Html.DisplayNameFor(model => model.TotalPrice)</th>
+                            <th>@Html.DisplayNameFor(model => model.Status)</th>
+                            <th>Xem</th>
+                            <th>Xóa</th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => item.LastName)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Phone)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Address)</td>
+                                <td>@Html.DisplayFor(modelItem => item.OrderDate)</td>
+                                <td>@item.TotalPrice.ToString("N0")</td>
+                                <td>
+                                    <form asp-action="UpdateOrderStatus">
+                                        <input type="hidden" name="orderId" value="@item.Id" />
+                                        <select name="status" class="form-control" onchange="this.form.submit()">
+                                            @foreach (var status in Enum.GetValues(typeof(WebDoDienTu.Models.OrderStatus)))
+                                            {
+                                                if (item.Status == (WebDoDienTu.Models.OrderStatus)status)
+                                                {
+                                                    <option value="@status" selected>@status</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@status">@status</option>
+                                                }
+                                            }
+                                        </select>
+                                    </form>
+                                </td>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@item.Id"><i class="fa-solid fa-eye"></i></a>
+                                </td>
+                                <td>
+                                    <a asp-action="Delete" asp-route-id="@item.Id"><i class="fa-solid fa-trash"></i></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>

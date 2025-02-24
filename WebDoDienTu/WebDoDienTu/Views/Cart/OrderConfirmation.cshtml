@@ -1,0 +1,49 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@model Order
+
+@{
+    ViewData["Title"] = "Xác nhận đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center">@Localizer["ThankYou"]</h2>
+    <p class="text-center">@Localizer["OrderRecorded"]</p>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>@Localizer["OrderInformation"]</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>@Localizer["OrderId"]</strong> @Model.Id</p>
+            <p><strong>@Localizer["OrderDate"]</strong> @Model.OrderDate.ToString("dd/MM/yyyy")</p>
+            <p><strong>@Localizer["TotalPrice"]</strong> @Model.TotalPrice.ToString("N0") VND</p>
+            <p><strong>@Localizer["DepositAmount"]</strong> @Model.DepositAmount.ToString("N0") VND</p>
+            <p><strong>@Localizer["RemainingAmount"]</strong> @((Model.TotalPrice - Model.DepositAmount).ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))) VND</p>
+            <p><strong>@Localizer["Status"]</strong> @Localizer["Processing"]</p>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>@Localizer["ProductInformation"]</h5>
+        </div>
+        <div class="card-body">
+            @foreach (var item in Model.OrderDetails)
+            {
+                <div class="border-bottom py-2">
+                    <p><strong>@Localizer["ProductName"]</strong> @item.Product.ProductName</p>
+                    <p><strong>@Localizer["Quantity"]</strong> @item.Quantity</p>
+                    <p><strong>@Localizer["Price"]</strong> @item.Price.ToString("N0") VND</p>
+                    <img src="@item.Product.ImageUrl" alt="@item.Product.ProductName" class="img-thumbnail" style="max-width: 100px;" />
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="mt-4 text-center">
+        <a href="@Url.Action("Index", "Home")" class="btn btn-primary">@Localizer["ContinueShopping"]</a>
+    </div>
+</div>
+
+

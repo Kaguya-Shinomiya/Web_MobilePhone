@@ -1,0 +1,81 @@
+﻿@model IEnumerable<WebDoDienTu.Models.Product>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Danh mục sản phẩm</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a asp-area="admin" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li class="breadcrumb-item active">Product</li>
+        </ol>
+        <div class="card mb-4">
+            <div class="card-body">
+                <button id="addProduct" type="submit" class="btn btn-primary"><a asp-action="Create" style="text-decoration: none; color: white">Thêm sản phẩm</a></button>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-table me-1"></i>
+            </div>
+            <div class="card-body">
+                <table id="datatablesSimple">
+                    <thead>
+                        <tr>
+                            <th>@Html.DisplayNameFor(model => model.ProductName)</th>
+                            <th>@Html.DisplayNameFor(model => model.Price)</th>
+                            <th>@Html.DisplayNameFor(model => model.Description)</th>
+                            <th>@Html.DisplayNameFor(model => model.ImageUrl)</th>
+                            <th>@Html.DisplayNameFor(model => model.Category)</th>
+                            <th>Số lượng</th>
+                            <th>Sửa</th>
+                            <th>Xem</th>
+                            <th>Xóa</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>@Html.DisplayNameFor(model => model.ProductName)</th>
+                            <th>@Html.DisplayNameFor(model => model.Price)</th>
+                            <th>@Html.DisplayNameFor(model => model.Description)</th>
+                            <th>@Html.DisplayNameFor(model => model.ImageUrl)</th>
+                            <th>@Html.DisplayNameFor(model => model.Category)</th>
+                            <th>Số lượng</th>
+                            <th>Sửa</th>
+                            <th>Xem</th>
+                            <th>Xóa</th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => item.ProductName)</td>
+                                <td>@item.Price.ToString("N0") VND</td>
+                                <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                                <td><img src="@Html.DisplayFor(modelItem => item.ImageUrl)" style="width:100px" /> <img /></td>
+                                <td>@Html.DisplayFor(modelItem => item.Category.CategoryName)</td>
+                                <td>@Html.DisplayFor(modelItem => item.StockQuantity)</td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.ProductId"><i class="fa-regular fa-pen-to-square"></i></a>
+                                </td> 
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@item.ProductId"><i class="fa-solid fa-eye"></i></a>
+                                </td> 
+                                <td>
+                                    <a asp-action="Delete" asp-route-id="@item.ProductId"><i class="fa-solid fa-trash"></i></a>
+                                </td>
+                            </tr>
+                            
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>

@@ -1,0 +1,68 @@
+﻿@model IEnumerable<WebDoDienTu.Models.InventoryTransaction>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Danh mục đơn hàng</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li class="breadcrumb-item active">Order</li>
+        </ol>
+        <div class="card mb-4">
+            <div class="card-body">
+                <button id="addProduct" type="submit" class="btn btn-primary"><a asp-action="Create" style="text-decoration: none; color: white">Nhập đơn hàng mới</a></button>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-table me-1"></i>
+            </div>
+            <div class="card-body">
+                <table id="datatablesSimple">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>@Html.DisplayNameFor(model => model.TransactionDate)</th>
+                            <th>@Html.DisplayNameFor(model => model.Quantity)</th>
+                            <th>@Html.DisplayNameFor(model => model.TransactionType)</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>STT</th>
+                            <th>@Html.DisplayNameFor(model => model.TransactionDate)</th>
+                            <th>@Html.DisplayNameFor(model => model.Quantity)</th>
+                            <th>@Html.DisplayNameFor(model => model.TransactionType)</th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                        @{
+                            int soThuTu = 1;
+                        }
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@soThuTu</td>
+                                <td>@Html.DisplayFor(modelItem => item.TransactionDate)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Quantity)</td>
+                                <td>@Html.DisplayFor(modelItem => item.TransactionType)</td>
+                                <td>
+@*                                     <a asp-action="Edit" asp-route-id="@item.TransactionId"><i class="fa-regular fa-pen-to-square"></i></a>
+                                    <a asp-action="Details" asp-route-id="@item.TransactionId"><i class="fa-solid fa-eye"></i></a>
+                                    <a asp-action="Delete" asp-route-id="@item.TransactionId"><i class="fa-solid fa-trash"></i></a> *@
+                                </td>
+                            </tr>
+                            soThuTu++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>

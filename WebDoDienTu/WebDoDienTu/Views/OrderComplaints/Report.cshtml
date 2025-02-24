@@ -1,0 +1,26 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@model WebDoDienTu.Models.OrderComplaint
+
+@{
+    ViewData["Title"] = "Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Message"]
+    </div>
+}
+
+<h2 class="pb-4">@Localizer["ReportAnOrderIssue"]</h2>
+
+<form asp-action="SubmitComplaint" method="post">
+    <input type="hidden" asp-for="OrderId" />
+    <div class="form-group">
+        <label class="pb-1" for="ComplaintDescription">@Localizer["ComplaintDescriptionLabel"]</label>
+        <textarea class="form-control" id="ComplaintDescription" asp-for="ComplaintDescription" rows="4" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary mt-4 align-item-end">@Localizer["SubmitComplaintButton"]</button>
+</form>
+

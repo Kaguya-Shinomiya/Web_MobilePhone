@@ -1,0 +1,75 @@
+﻿@model IEnumerable<WebDoDienTu.Models.ProductReview>
+
+@{
+    ViewData["Title"] = "ManageReviews";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Danh mục</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li class="breadcrumb-item active">Danh mục</li>
+        </ol>
+        <div class="card mb-4">
+            <div class="card-body">
+                <button id="addProduct" type="submit" class="btn btn-primary"><a asp-action="Create" style="text-decoration: none; color: white">Thêm danh mục</a></button>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-table me-1"></i>
+            </div>
+            <div class="card-body">
+                <table id="datatablesSimple">
+                    <thead>
+                        <tr>
+                            <th>Người dùng</th>
+                            <th>Nội dung</th>
+                            <th>Đánh giá</th>
+                            <th>Email</th>
+                            <th>Thời gian</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.YourName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Comment)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Rating)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.YourEmail)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ReviewDate)
+                                </td>
+                                <td>
+                                    @(item.IsHidden ? "Ẩn" : "Hiển thị")
+                                </td>
+                                <td>
+                                    <form asp-action="ToggleReviewVisibility" method="post">
+                                        <input type="hidden" name="reviewId" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-secondary">
+                                            @(item.IsHidden ? "Hiển thị" : "Ẩn")
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+

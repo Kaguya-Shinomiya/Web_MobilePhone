@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Thanh toán thành công";
+}
+
+<div class="container">
+    <h1>@ViewData["Title"]</h1>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Message"]
+        </div>
+    }
+
+    <p>Chúc mừng! Thanh toán của bạn qua PayPal đã thành công. Bạn có thể kiểm tra đơn hàng của mình trong trang quản lý đơn hàng.</p>
+
+    <a href="@Url.Action("Index", "Home")" class="btn btn-primary">Về trang chủ</a>
+</div>

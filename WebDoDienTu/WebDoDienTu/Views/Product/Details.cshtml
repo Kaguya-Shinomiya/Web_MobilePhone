@@ -1,0 +1,309 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@model WebDoDienTu.Models.Product
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    var successMessage = TempData["SuccessMessage"] as string;
+    var displayRating = Math.Round((double)ViewBag.AverageRating, 1);
+}
+
+<style>
+    .watermark-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        pointer-events: none;
+    }
+</style>
+
+<!-- Single Page Header start -->
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">@Localizer["PageHeader"]</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">@Localizer["BreadcrumbHome"]</a></li>
+        <li class="breadcrumb-item active text-white">@Localizer["BreadcrumbDetail"]</li>
+    </ol>
+</div>
+<!-- Single Page Header End -->
+
+<!-- Single Product Start -->
+<div class="container-fluid py-5 mt-5" style="margin: -150px 0">
+    <div class="container py-5">
+        <div class="row g-4 mb-5">
+            <div class="col-lg-8 col-xl-9">
+                <!-- Product Name and Rating -->
+                <div class="mb-4">
+                    <h2 class="fw-bold">@Model.ProductName</h2>
+                    <div class="d-flex align-items-center" style="font-size: 18px;">
+                        <!-- Average Rating Display -->
+                        @for (int i = 0; i < 5; i++)
+                        {
+                            if (i < Math.Floor(displayRating))
+                            {
+                                <i class="fa fa-star text-warning"></i>
+                            }
+                            else if (i == Math.Floor(displayRating) && displayRating - Math.Floor(displayRating) >= 0.5)
+                            {
+                                <i class="fa fa-star-half text-warning"></i>
+                            }
+                            else
+                            {
+                                <i class="fa fa-star"></i>
+                            }
+                        }
+                        <span class="ms-2">(@Model.Reviews.Count reviews)</span>
+                        <span class="ms-2">(@displayRating)</span>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="border rounded position-relative">
+                            <div id="gallery-container" class="d-flex justify-content-center">
+                                <!-- Hiển thị ảnh chính -->
+                                <a href="@Model.ImageUrl" data-fancybox="gallery">
+                                    <img src="@Model.ImageUrl" class="img-fluid rounded" alt="Main Product Image">
+                                </a>
+                                <!-- Hiển thị các ảnh bổ sung -->
+                                @if (Model.Images != null && Model.Images.Any())
+                                {
+                                    foreach (var image in Model.Images)
+                                    {
+                                        <a href="@image.Url" hidden data-fancybox="gallery">
+                                            <img src="@image.Url" class="img-fluid rounded mt-2" alt="Additional Product Image">
+                                        </a>
+                                    }
+                                }
+                                <!-- Hiển thị video -->
+                                @if (Model.VideoUrl != null )
+                                {
+                                    <a href="@Model.VideoUrl" hidden data-fancybox="gallery" data-type="iframe">
+                                        <img src="@Model.ImageUrl" class="img-fluid rounded mt-2" alt="Additional Product Image">
+                                    </a>
+                                }
+                            </div>
+
+                            @if (Model.StockQuantity <= 0)
+                            {
+                                <div class="watermark-overlay">
+                                    @Localizer["OutOfStock"]
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <h5 class="fw-bold mb-3">@Model.Price.ToString("N0") VND</h5>
+                        <p class="mb-4">@Model.Description</p>      
+
+                        <!-- Quantity and Add to Cart Section -->
+                        <form class="my-4" asp-action="AddToCart" asp-controller="Cart" asp-route-productId="@Model.ProductId">
+                            <div class="input-group quantity mb-5" style="width: 100px;">
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-sm btn-minus bg-light border" disabled="@(Model.StockQuantity <= 0)">
+                                        <i class="fa fa-minus"></i>
+                                    </button>
+                                </div>
+                                <input type="text" class="form-control form-control-sm text-center border-0" value="1" name="quantity" disabled="@(Model.StockQuantity <= 0)">
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-sm btn-plus bg-light border" disabled="@(Model.StockQuantity <= 0)">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-center border border-3">
+                                <button class="btn px-3 text-primary" disabled="@(Model.StockQuantity <= 0)">
+                                    <i class="fa fa-shopping-bag me-2 text-primary"> @Localizer["AddToCart"]</i>
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Wishlist and Comparison Buttons -->
+                        <div class="d-flex flex-row justify-content-between">
+                            <form asp-action="AddToWishlist" asp-controller="Wishlist" method="post">
+                                <input type="hidden" name="productId" value="@Model.ProductId" />
+                                <button class="btn border border border-3 px-3 text-primary" type="submit">
+                                    <i class="fa fa-heart me-2 text-primary"></i>@Localizer["AddToWishlist"]
+                                </button>
+                            </form>
+                            <a asp-controller="Product" asp-action="AddToComparison" asp-route-productId="@Model.ProductId" class="btn border border border-3 px-3 text-primary">
+                                <i class="fa fa-shopping-bag me-2 text-primary"></i>@Localizer["AddToComparison"]
+                            </a>
+                        </div>
+
+                    </div>
+
+                    <!-- Product Attributes Table Start -->
+                    <div class="product-attributes mb-4">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">
+                                        @Localizer["TechnicalDetails"]
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var productattribute in Model.Attributes)
+                                {
+                                    <tr>
+                                        <td>@productattribute.AttributeName</td>
+                                        <td>@productattribute.AttributeValue</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Product Attributes Table End -->
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Review Section and Other Content as Before... -->
+        <div class="border border-light-subtle p-3 mb-5">
+            <form id="reviewForm" asp-action="AddReview" asp-controller="ProductReview" method="post">
+                <h4 class="mb-5 fw-bold">@Localizer["LeaveReview"]</h4>
+                <input type="hidden" name="productId" value="@Model.ProductId" />
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="border-bottom rounded">
+                            <input type="text" name="name" id="name" class="form-control border-0" placeholder="@Localizer["YourName"]" required  />
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="border-bottom rounded">
+                            <input type="email" name="email" id="email" class="form-control border-0" placeholder="@Localizer["YourEmail"]" required />
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="border-bottom rounded my-4">
+                            <textarea name="comment" id="comment" class="form-control border-0" cols="30" rows="8" placeholder="@Localizer["YourReview"]" required spellcheck="false"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="d-flex justify-content-between py-3 mb-5">
+                            <div class="d-flex align-items-center">
+                                <p class="mb-0 me-3">Please rate:</p>
+                                <div class="d-flex align-items-center" style="font-size: 18px">
+                                    <!-- Rating stars with radio buttons hidden -->
+                                    <input type="radio" name="rating" value="1" id="star1" class="d-none" />
+                                    <label for="star1" class="star-label">
+                                        <i class="fa fa-star text-warning" data-value="1"></i>
+                                    </label>
+                                    <input type="radio" name="rating" value="2" id="star2" class="d-none" />
+                                    <label for="star2" class="star-label">
+                                        <i class="fa fa-star text-warning" data-value="2"></i>
+                                    </label>
+                                    <input type="radio" name="rating" value="3" id="star3" class="d-none" />
+                                    <label for="star3" class="star-label">
+                                        <i class="fa fa-star text-warning" data-value="3"></i>
+                                    </label>
+                                    <input type="radio" name="rating" value="4" id="star4" class="d-none" />
+                                    <label for="star4" class="star-label">
+                                        <i class="fa fa-star text-warning" data-value="4"></i>
+                                    </label>
+                                    <input type="radio" name="rating" value="5" id="star5" class="d-none" checked />
+                                    <label for="star5" class="star-label">
+                                        <i class="fa fa-star text-warning" data-value="5"></i>
+                                    </label>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary border border-secondary text-white rounded-pill px-4 py-3">
+                                @Localizer["SubmitReview"]
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="border border-light-subtle p-2 mb-5">
+            <h2>@Localizer["Reviews"]</h2>
+            <div id="reviews">
+                @if (Model.Reviews.Any())
+                {
+                    var reviews = Model.Reviews.ToList();
+                    for (int i = 0; i < reviews.Count; i++)
+                    {
+                        if (!reviews[i].IsHidden)
+                        {
+                            <div class="review-item border border-light-subtle p-1 my-1 rounded" style="display: @(i < 5 ? "block" : "none");">
+                                <strong>@reviews[i].YourName</strong>
+                                <div class="rating">
+                                    @for (int j = 0; j < 5; j++)
+                                    {
+                                        if (j < reviews[i].Rating)
+                                        {
+                                            <i class="fas fa-star text-warning"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="far fa-star text-warning"></i>
+                                        }
+                                    }
+                                </div>
+                                <p class="mt-2">Comment: @reviews[i].Comment</p>
+                                <p><small>Posted on: @reviews[i].ReviewDate.ToString("MMMM dd, yyyy")</small></p>
+                            </div>
+                        }
+                    }
+                }
+                else
+                {
+                    <p>@Localizer["NoReviewsYet"]</p>                  
+                }
+            </div>
+            <div class="text-center mt-3">
+                <button id="loadMoreBtn" class="btn btn-primary" onclick="loadMoreReviews()">@Localizer["LoadMore"]</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- Single Product End -->
+
+
+<script>
+    @using Newtonsoft.Json
+    var err = @Html.Raw(JsonConvert.SerializeObject(TempData["Error"]));
+    if (err != null) {
+        alert(err);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var galleryItems = document.querySelectorAll('[data-fancybox="gallery"]');
+
+        galleryItems.forEach(function (item) {
+            item.addEventListener('click', function (event) {
+                // Chạy hàm Fancybox với các tùy chọn
+                Fancybox.open(galleryItems, {
+                    buttons: [
+                        'zoom',
+                        'slideShow',
+                        'thumbs',
+                        'close'
+                    ],
+                    loop: true,
+                    protect: true
+                });
+            });
+        });
+    });
+</script>
+
+<script src="~/js/rating.js"></script>
+
+@await Html.PartialAsync("_RelatedProductsPartial", ViewBag.RecommendedProducts as List<WebDoDienTu.Models.Product>)

@@ -1,0 +1,103 @@
+﻿@{
+    ViewData["Title"] = "PayRemainingBalance";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model WebDoDienTu.Models.Order
+@{
+    var remainingAmount = ViewBag.RemainingAmount;
+}
+
+<h2>Thông tin đơn hàng</h2>
+<div class="d-flex flex-row gap-5">
+<!-- Bảng thông tin đơn hàng -->
+<table class="order-info-table">
+    <tr>
+        <th>Họ tên</th>
+        <td>@Model.FirstName @Model.LastName</td>
+    </tr>
+    <tr>
+        <th>Trạng thái đơn hàng</th>
+        <td>@Model.Status</td>
+    </tr>
+    <tr>
+        <th>Ngày đặt</th>
+        <td>@Model.OrderDate.ToString("dd/MM/yyyy")</td>
+    </tr>
+    <tr>
+        <th>Tổng tiền</th>
+        <td>@Model.TotalPrice.ToString("N0") VND</td>
+    </tr>
+    @{
+        if (Model.DepositAmount != 0)
+        {
+            var price = Model.TotalPrice - Model.DepositAmount;
+            <tr>
+                <th>Số tiền đã cọc</th>
+                <td>@Model.DepositAmount.ToString("N0") VND</td>
+            </tr>
+            <tr>
+                <th>Số tiền phải trả</th>
+                <td>@price.ToString("N0") VND</td>
+            </tr>
+        }
+    }
+    <tr>
+        <th>Số điện thoại</th>
+        <td>@Model.Phone</td>
+    </tr>
+    <tr>
+        <th>Email</th>
+        <td>@Model.Email</td>
+    </tr>
+    <tr>
+        <th>Địa chỉ</th>
+        <td>@Model.Address</td>
+    </tr>
+    <tr>
+        <th>Ghi chú</th>
+        <td>@Model.Notes</td>
+    </tr>
+</table>
+
+<form method="post" action="@Url.Action("ProcessRemainingPayment", "Cart")">
+    <input type="hidden" name="OrderId" value="@Model.Id" />
+    <input type="hidden" name="RemainingAmount" value="@remainingAmount" />
+
+    <!-- Payment method options -->
+    <div>
+        <label for="paymentMethod">Chọn phương thức thanh toán</label><br />
+        <input type="radio" id="moMo" name="paymentMethod" value="MoMo" checked />
+        <label for="moMo">Thanh toán MoMo</label><br />
+
+        <input type="radio" id="payPal" name="paymentMethod" value="PayPal" />
+        <label for="payPal">Thanh toán PayPal</label><br />
+
+        <input type="radio" id="vnPay" name="paymentMethod" value="VNPay" />
+        <label for="vnPay">Thanh toán VNPay</label>
+    </div>
+
+    <button class="btn btn-primary mt-3" type="submit">Thanh toán</button>
+</form>
+</div>
+
+<style>
+    /* Bảng thông tin đơn hàng */
+    .order-info-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+        .order-info-table th, .order-info-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .order-info-table th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+</style>
+

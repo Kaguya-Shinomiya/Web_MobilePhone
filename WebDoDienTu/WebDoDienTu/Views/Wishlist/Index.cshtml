@@ -1,0 +1,59 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@model WebDoDienTu.ViewModels.WishListViewModel
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["Message"]
+    </div>
+}
+else
+{
+    <h1>@Localizer["MyWishList"]</h1>
+    <table class="table">
+        <thead>
+            <tr>          
+                <th>@Localizer["WishlistColumnSTT"]</th>
+                <th>@Localizer["WishlistColumnImage"]</th>
+                <th>@Localizer["WishlistColumnProductName"]</th>
+                <th>@Localizer["WishlistColumnPrice"]</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int stt = 1;
+                foreach (var item in Model.WishListItems) {
+                    <tr>
+                        <td>@stt</td>
+                        <td>
+                            <img class="" src="@Html.DisplayFor(modelItem => item.Product.ImageUrl)" style="width: 70px"/>                    
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Product.ProductName)
+                        </td>                    
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Product.Price)
+                        </td>
+                        <td>
+                            <form asp-controller="Wishlist" asp-action="AddToCart" asp-route-productId="@item.ProductId" asp-route-quantity="1" class="mx-1">
+                                <input type="submit" value="@Localizer["AddToCartButton"]" class="btn btn-primary" />
+                            </form>
+                        </td>                       
+                        <td>
+                            <form asp-action="RemoveFromWishList" asp-route-productId="@item.ProductId" class="mx-1">
+                                <input type="submit" value="@Localizer["DeleteButton"]" class="btn btn-danger" />
+                            </form>
+                        </td>
+                    </tr>
+                    stt++;
+                }
+            }
+        </tbody>
+    </table>
+}

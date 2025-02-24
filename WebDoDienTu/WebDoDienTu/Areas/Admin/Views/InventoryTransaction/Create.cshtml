@@ -1,0 +1,55 @@
+﻿@model WebDoDienTu.Models.InventoryTransaction
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Thông tin sản phẩm</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a asp-area="admin" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li class="breadcrumb-item active">Create InventoryTransaction</li>
+        </ol>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4>Thêm đơn nhập/xuất hàng</h4>
+                <hr />
+                <div class="row">
+                    <div class="col-md-4">
+                        <form asp-action="Create">
+                            <div class="form-group mb-3">
+                                <label class="control-label">Product</label>
+                                <select asp-for="ProductId" class="form-control" asp-items="ViewBag.ProductId"></select>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label asp-for="Quantity" class="control-label"></label>
+                                <input asp-for="Quantity" class="form-control" />
+                                <span asp-validation-for="Quantity" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label asp-for="TransactionType" class="control-label">Transaction Type</label>
+                                <select asp-for="TransactionType" class="form-control">
+                                    <option value="0">Import</option>
+                                    <option value="1">Export</option>
+                                </select>
+                                <span asp-validation-for="TransactionType" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <br />
+                <div>
+                    <a asp-action="Index">Trở về</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

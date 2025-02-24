@@ -1,0 +1,157 @@
+﻿@model WebDoDienTu.ViewModels.ProductUpdateViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Cập nhật sản phẩm</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a asp-area="admin" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li class="breadcrumb-item active">Update</li>
+        </ol>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4>Sản phẩm</h4>
+                <hr />
+                <form asp-action="Edit" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6">                       
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <input type="hidden" asp-for="ProductId" />
+
+                            <!-- Tên sản phẩm -->
+                            <div class="form-group">
+                                <label asp-for="ProductName" class="control-label"></label>
+                                <input asp-for="ProductName" class="form-control" />
+                                <span asp-validation-for="ProductName" class="text-danger"></span>
+                            </div>
+
+                            <!-- Giá -->
+                            <div class="form-group">
+                                <label asp-for="Price" class="control-label"></label>
+                                <input asp-for="Price" class="form-control" />
+                                <span asp-validation-for="Price" class="text-danger"></span>
+                            </div>
+
+                            <!-- Mô tả -->
+                            <div class="form-group">
+                                <label asp-for="Description" class="control-label"></label>
+                                <input asp-for="Description" class="form-control" />
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+
+                            <!-- Hình ảnh chính -->
+                            <div class="form-group">
+                                <label asp-for="ImageUrl" class="control-label"></label>
+                                <input type="file" asp-for="ImageUrl" class="form-control" />
+                                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                            </div>
+
+                            <!-- Ảnh khác -->
+                            <div class="form-group">
+                                <label asp-for="Images" class="control-label"></label>
+                                <input type="file" asp-for="Images" multiple class="form-control" />
+                            </div>
+
+                            <!-- Video -->
+                            <div class="form-group">
+                                <label asp-for="VideoUrl" class="control-label"></label>
+                                <input asp-for="VideoUrl" class="form-control" type="file" accept="video/*" />
+                                <span asp-validation-for="VideoUrl" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <!-- Loại sản phẩm -->
+                            <div class="form-group">
+                                <label asp-for="CategoryId" class="control-label"></label>
+                                <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories"></select>
+                                <span asp-validation-for="CategoryId" class="text-danger"></span>
+                            </div>
+
+                            <!-- Ngày phát hành -->
+                            <div class="form-group">
+                                <label asp-for="ReleaseDate" class="control-label"></label>
+                                <input asp-for="ReleaseDate" type="date" class="form-control" />
+                                <span asp-validation-for="ReleaseDate" class="text-danger"></span>
+                            </div>
+
+                            <!-- Danh sách thuộc tính -->
+                            <div class="d-flex align-items-center gap-1 my-1">
+                                <label asp-for="Attributes" class="control-label"></label>
+                                <button type="button" class="btn btn-secondary mt-2" id="add-attribute-btn"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                            
+                            <div id="attributes-container">
+                                @{
+                                    int i = 0;
+                                }
+                                @foreach (var attributeProduct in Model.Attributes)
+                                {
+                                    <div class="row mb-3">
+                                        <input type="hidden" name="Attributes[@i].ProductAttributeId" value="@attributeProduct.ProductAttributeId" />
+                                        <div class="col-md-5">
+                                            <input type="text" name="Attributes[@i].AttributeName" class="form-control" value="@attributeProduct.AttributeName" placeholder="Tên thuộc tính" required />
+                                        </div>
+                                        <div class="col-md-5">
+                                            <input type="text" name="Attributes[@i].AttributeValue" class="form-control" value="@attributeProduct.AttributeValue" placeholder="Giá trị thuộc tính" required />
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button type="button" class="btn btn-danger remove-attribute">Xóa</button>
+                                        </div>
+                                    </div>
+                                    i++;
+                                }
+                            </div>
+                        </div>
+                        <div class="d-flex flex-row-reverse gap-5">
+                            <div class="form-group my-3">
+                                <a class="btn btn-primary" asp-action="Index">Trở về</a>
+                            </div>
+                            <div class="form-group my-3">
+                                <input type="submit" value="Lưu" class="btn btn-primary" />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+
+@section Scripts {
+    <script>
+        document.getElementById('add-attribute-btn').addEventListener('click', function () {
+            const container = document.getElementById('attributes-container');
+            const index = container.children.length;
+
+            const attributeRow = document.createElement('div');
+            attributeRow.classList.add('row', 'mb-3');
+
+            attributeRow.innerHTML = `
+                        <input type="hidden" name="Attributes[${index}].ProductAttributeId" value="0" />
+                        <div class="col-md-5">
+                            <input type="text" name="Attributes[${index}].AttributeName" class="form-control" placeholder="Tên thuộc tính" required />
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" name="Attributes[${index}].AttributeValue" class="form-control" placeholder="Giá trị thuộc tính" required />
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-danger remove-attribute">Xóa</button>
+                        </div>
+                    `;
+            container.appendChild(attributeRow);
+        });
+
+        document.getElementById('attributes-container').addEventListener('click', function (event) {
+            if (event.target.classList.contains('remove-attribute')) {
+                const row = event.target.closest('.row');
+                if (row) row.remove();
+            }
+        });
+    </script>
+}

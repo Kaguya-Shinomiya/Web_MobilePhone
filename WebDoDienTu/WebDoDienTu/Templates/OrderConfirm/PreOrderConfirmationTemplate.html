@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác Nhận Đơn Hàng</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+            .header h2 {
+                margin: 0;
+                color: #4CAF50;
+            }
+
+        .order-summary {
+            margin-bottom: 20px;
+        }
+
+            .order-summary h3 {
+                margin-top: 0;
+            }
+
+        .order-details {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+            .order-details th, .order-details td {
+                padding: 10px;
+                border: 1px solid #ddd;
+                text-align: left;
+            }
+
+            .order-details th {
+                background-color: #f2f2f2;
+            }
+
+        .total-amount {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Xác Nhận Đơn Hàng</h2>
+        </div>
+
+        <p>Xin chào, {{UserName}}</p>
+        <p>Cảm ơn bạn đã đặt hàng tại cửa hàng của chúng tôi. Dưới đây là thông tin chi tiết về đơn hàng của bạn.</p>
+
+        <div class="order-summary">
+            <h3>Tóm Tắt Đơn Hàng</h3>
+            <p><strong>Mã Đơn Hàng:</strong> {{OrderId}}</p>
+            <p><strong>Ngày Đặt Hàng:</strong> {{OrderDate}}</p>
+        </div>
+
+        <table class="order-details">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Sản Phẩm</th>
+                    <th>Số Lượng</th>
+                    <th>Giá</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{Items}}
+            </tbody>
+        </table>
+
+        <p class="total-amount">Tổng Tiền: {{TotalAmount}}</p>
+        <p class="total-amount">Thanh Toán: {{Pay}}</p>
+        <p class="total-amount">Còn Lại: {{Rest}}</p>
+
+        <p>{{Message}}. Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
+
+        <p>Trân trọng,<br>Đội ngũ cửa hàng</p>
+    </div>
+</body>
+</html>

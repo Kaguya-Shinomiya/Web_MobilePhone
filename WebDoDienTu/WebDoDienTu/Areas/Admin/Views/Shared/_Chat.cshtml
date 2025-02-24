@@ -1,0 +1,32 @@
+﻿<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.9/signalr.min.js"></script>
+<script>
+    const connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+
+    connection.start().then(() => {
+        console.log("Connected to SignalR.");
+        loadChatUsers();
+    }).catch(err => console.error(err.toString()));
+
+    // Khi nhận tin nhắn mới từ user
+    connection.on("ReceiveMessageFromUser", (user, message) => {
+        showNotification(`Tin nhắn mới từ ${user}`);
+    });
+
+    // Khi có sự kiện thông báo tin nhắn mới
+    connection.on("NewMessageNotification", () => {
+        showNotification("Bạn có tin nhắn mới");
+    });
+
+    // Hàm hiển thị thông báo
+    function showNotification(message) {
+        const notification = document.createElement("div");
+        notification.className = "notification";
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        // Tự động ẩn thông báo sau 3 giây
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+</script>

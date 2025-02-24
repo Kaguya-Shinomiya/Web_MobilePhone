@@ -1,0 +1,275 @@
+﻿<!-- Chat Button -->
+<a href="javascript:void(0);" onclick="toggleChat()" class="btn btn-primary border-3 border-primary rounded-circle chat">
+    <i class="fab fa-rocketchat"></i>
+    <span id="unreadCount" class="unread-count">0</span>
+</a>
+
+<!-- Chat Window -->
+<div id="chatWindow" class="chat-window">
+    <div class="chat-header">
+        <span>Chat with Admin</span>
+        <button onclick="toggleChat()" class="close-btn">×</button>
+    </div>
+    <div class="chat-body">
+        <ul id="messagesList"></ul>
+    </div>
+    <div class="chat-footer">
+        <input id="messageInput" type="text" placeholder="Enter your message" />
+        <button id="sendButton" onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<style>
+    .chat {
+        position: fixed;
+        right: 30px;
+        bottom: 100px;
+        display: flex;
+        width: 45px;
+        height: 45px;
+        align-items: center;
+        justify-content: center;
+        transition: 0.5s;
+        z-index: 99;
+        cursor: pointer;
+    }
+
+    .unread-count {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background-color: red;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        display: none;
+    }
+
+    .chat-window {
+        position: fixed;
+        right: 30px;
+        bottom: 160px;
+        width: 300px;
+        max-height: 400px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        display: none;
+        flex-direction: column;
+        z-index: 100;
+    }
+
+    .chat-header {
+        background: #007bff;
+        color: #fff;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+    }
+
+    .chat-body {
+        padding: 10px;
+        overflow-y: auto;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .chat-body ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-body li {
+            margin: 5px 0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+            .chat-body li.sent {
+                background-color: #007bff;
+                color: white;
+                align-self: flex-end;
+            }
+
+            .chat-body li.received {
+                background-color: #f1f1f1;
+                color: black;
+                align-self: flex-start;
+            }
+
+
+    .close-btn {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .chat-footer {
+        display: flex;
+        padding: 10px;
+        border-top: 1px solid #ddd;
+    }
+
+        .chat-footer input[type="text"] {
+            flex-grow: 1;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+
+        .chat-footer button {
+            padding: 5px 10px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+    .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 100px;
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+    }
+
+    .message-time {
+        display: block;
+        font-size: 0.75em;
+        margin-top: 5px;
+        text-align: right;
+    }
+
+    .chat-body li.sent .message-time {
+        color: white;
+    }
+
+    .chat-body li.received .message-time {
+        color: black;
+    }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.9/signalr.min.js"></script>
+<script>
+    const connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+    let unreadCount = 0;
+
+    connection.start().then(() => {
+        console.log("Connected to SignalR.");
+        loadChatHistory();
+    }).catch(err => console.error(err.toString()));
+
+    connection.on("ReceiveMessageFromAdmin", (user, message) => {
+        const li = document.createElement("li");
+        li.textContent = `${message}`;
+        li.classList.add("received");
+        const timeSpan = document.createElement("span");
+        timeSpan.className = "message-time";
+        timeSpan.textContent = new Date().toLocaleTimeString();
+        li.appendChild(timeSpan);
+        document.getElementById("messagesList").appendChild(li);
+        unreadCount++;
+        updateUnreadCount();
+        scrollToBottom();
+        showNotification("Tin nhắn mới");
+    });
+
+    function scrollToBottom() {
+        const chatBody = document.querySelector(".chat-body");
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Lắng nghe sự kiện thông báo tin nhắn mới
+    connection.on("NewMessageNotification", () => {
+        showNotification("Bạn có tin nhắn mới");
+    });
+
+    // Cập nhật số lượng tin nhắn chưa đọc
+    function updateUnreadCount() {
+        const unreadCountElement = document.getElementById("unreadCount");
+        unreadCountElement.textContent = unreadCount;
+        unreadCountElement.style.display = unreadCount > 0 ? "flex" : "none";
+    }
+
+    // Hàm hiển thị thông báo
+    function showNotification(message) {
+        const notification = document.createElement("div");
+        notification.className = "notification";
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        // Tự động ẩn thông báo sau 3 giây
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    function sendMessage() {
+        const messageInput = document.getElementById("messageInput");
+        const message = messageInput.value;
+        if (message.trim()) {
+            connection.invoke("SendMessageToAdmin", message).catch(err => console.error(err.toString()));
+            const li = document.createElement("li");
+            li.textContent = `${message}`;
+            li.classList.add("sent");
+            const timeSpan = document.createElement("span");
+            timeSpan.className = "message-time";
+            timeSpan.textContent = new Date().toLocaleTimeString();
+            li.appendChild(timeSpan);
+            document.getElementById("messagesList").appendChild(li);
+            messageInput.value = "";
+
+            scrollToBottom();
+        }
+    }
+
+    function loadChatHistory() {
+        connection.invoke("GetChatHistory", "")
+            .then(messages => {
+                messages.forEach(msg => {
+                    const li = document.createElement("li");
+                    li.textContent = msg.message;
+                    li.classList.add(msg.senderId === "Admin" ? "received" : "sent");
+                    const timeSpan = document.createElement("span");
+                    timeSpan.className = "message-time";
+                    timeSpan.textContent = new Date(msg.timestamp).toLocaleTimeString();
+                    li.appendChild(timeSpan);
+                    document.getElementById("messagesList").appendChild(li);
+                });
+
+                scrollToBottom();
+            })
+            .catch(err => console.error("Error loading chat history: " + err.toString()));
+    }
+
+    function toggleChat() {
+        const chatWindow = document.getElementById("chatWindow");
+        chatWindow.style.display = chatWindow.style.display === "none" || chatWindow.style.display === "" ? "flex" : "none";
+
+        unreadCount = 0;
+        updateUnreadCount();
+        scrollToBottom();
+    }
+</script>

@@ -1,0 +1,43 @@
+﻿@model WebDoDienTu.Models.Category
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Thông tin danh mục</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a asp-area="admin" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li class="breadcrumb-item active">Update Category</li>
+        </ol>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4>Danh mục</h4>
+                <hr />
+                <div class="row">
+                    <div class="col-md-4">
+                        <form asp-action="Edit">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <input type="hidden" asp-for="CategoryId" />
+                            <div class="form-group">
+                                <label asp-for="CategoryName" class="control-label"></label>
+                                <input asp-for="CategoryName" class="form-control" />
+                                <span asp-validation-for="CategoryName" class="text-danger"></span>
+                            </div>
+                            <br />
+                            <div class="form-group">
+                                <input type="submit" value="Lưu" class="btn btn-primary" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <br />
+                <div>
+                    <a asp-action="Index">Trở về</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

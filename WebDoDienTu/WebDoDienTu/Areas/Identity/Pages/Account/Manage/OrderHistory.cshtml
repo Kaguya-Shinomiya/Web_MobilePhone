@@ -1,0 +1,45 @@
+﻿@page
+@model WebDoDienTu.Areas.Identity.Pages.Account.Manage.OrderHistoryModel
+
+@{
+    ViewData["Title"] = "Order History";
+}
+
+<h2 class="text-center pb-4">@ViewData["Title"]</h2>
+@{
+    if(Model.Orders.Count > 0)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Order Date</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model.Orders)
+                {
+                    <tr>
+                        <td>@order.Id</td>
+                        <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                        <td>@order.TotalPrice.ToString("N0") VND</td>
+                        @{
+                            <td>@order.Status</td>
+                        }
+                        <td>
+                            <a class="btn btn-primary" asp-area="" asp-controller="OrderComplaints" asp-action="Report" asp-route-orderId="@order.Id">Report</a>
+                            <a class="btn btn-primary" asp-area="" asp-controller="Cart" asp-action="OrderDetails" asp-route-orderId="@order.Id">Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p class="text-center">Chưa có đơn hàng</p>
+    }
+}

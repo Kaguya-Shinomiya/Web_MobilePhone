@@ -1,0 +1,212 @@
+﻿@model IEnumerable<WebDoDienTu.Models.PostCategory>
+
+@{
+    ViewData["Title"] = "Danh Mục";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Danh mục</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li class="breadcrumb-item active">Danh mục</li>
+        </ol>
+        <div class="card mb-4">
+            <div class="card-body">
+                <button id="addCategoryBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">Thêm danh mục</button>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-table me-1"></i> Danh sách danh mục
+            </div>
+            <div class="card-body">
+                <table id="datatablesSimple">
+                    <thead>
+                        <tr>
+                            <th>Tên Danh Mục</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </td>
+                                <td>
+                                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editCategoryModal"
+                                            data-id="@item.CategoryId" data-name="@item.Name">
+                                        Chỉnh Sửa
+                                    </button>
+                                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal"
+                                            data-id="@item.CategoryId">
+                                        Xóa
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thêm Danh Mục -->
+    <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="addCategoryForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addCategoryModalLabel">Thêm Danh Mục</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="categoryName" class="form-label">Tên Danh Mục</label>
+                            <input type="text" class="form-control" id="categoryName" name="Name" required />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Thêm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Chỉnh Sửa Danh Mục -->
+    <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="editCategoryForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editCategoryModalLabel">Chỉnh Sửa Danh Mục</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="editCategoryId" name="CategoryId" />
+                        <div class="mb-3">
+                            <label for="editCategoryName" class="form-label">Tên Danh Mục</label>
+                            <input type="text" class="form-control" id="editCategoryName" name="Name" required />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Cập Nhật</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Xóa Danh Mục -->
+    <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteCategoryModalLabel">Xóa Danh Mục</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Bạn có chắc chắn muốn xóa danh mục này?
+                    <input type="hidden" id="deleteCategoryId" value="" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const editCategoryModal = document.getElementById('editCategoryModal');
+            editCategoryModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const id = button.getAttribute('data-id');
+                const name = button.getAttribute('data-name');
+
+                editCategoryModal.querySelector('#editCategoryId').value = id;
+                editCategoryModal.querySelector('#editCategoryName').value = name;
+            });
+
+            document.getElementById('addCategoryForm').onsubmit = function (e) {
+                e.preventDefault(); // Ngăn chặn hành vi mặc định của form
+
+                const formData = new FormData(this);
+
+                fetch('@Url.Action("Create", "PostCategories")', {
+                    method: 'POST',
+                    body: JSON.stringify(Object.fromEntries(formData)),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload(); // Tải lại trang
+                        } else {
+                            alert(data.message); // Hiển thị thông báo lỗi
+                        }
+                    });
+            };
+
+            document.getElementById('editCategoryForm').onsubmit = function (e) {
+                e.preventDefault(); // Ngăn chặn hành vi mặc định của form
+
+                const formData = new FormData(this);
+
+                fetch('@Url.Action("Edit", "PostCategories")', {
+                    method: 'POST',
+                    body: JSON.stringify(Object.fromEntries(formData)),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload(); // Tải lại trang
+                        } else {
+                            alert(data.message); // Hiển thị thông báo lỗi
+                        }
+                    });
+            };
+
+            const deleteCategoryModal = document.getElementById('deleteCategoryModal');
+            deleteCategoryModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const id = button.getAttribute('data-id');              
+                deleteCategoryModal.querySelector('#deleteCategoryId').value = id;
+            });
+
+            document.getElementById('confirmDeleteBtn').onclick = function () {
+                const id = document.getElementById('deleteCategoryId').value;
+                console.log('ID to delete:', id);
+                fetch('@Url.Action("Delete", "PostCategories")', {
+                    method: 'POST',
+                    body: JSON.stringify(id),                  
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload(); // Tải lại trang
+                        } else {
+                            alert(data.message); // Hiển thị thông báo lỗi
+                        }
+                    });
+            };
+        });
+    </script>
+}

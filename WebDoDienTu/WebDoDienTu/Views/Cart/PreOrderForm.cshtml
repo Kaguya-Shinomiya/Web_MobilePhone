@@ -1,0 +1,107 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@model WebDoDienTu.ViewModels.PreOrderViewModel
+
+@{
+    ViewData["Title"] = "OrderCompleted";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    var productImg = ViewBag.Product?.ImageUrl;
+}
+
+<h2>@Localizer["OrderFormTitle"]</h2>
+
+<div class="row my-5">
+    <div class="col-6 d-flex">
+        <img class="justify-content-center w-75 m-auto" src="@productImg" alt="Alternate Text" />
+    </div>
+    <div class="col-6">
+        <form asp-action="SubmitPreOrder" method="post">
+            <input type="hidden" asp-for="ProductId" />
+
+            <div class="form-group">
+                <label asp-for="FirstName">@Localizer["FirstNameLabel"]</label>
+                <input asp-for="FirstName" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label asp-for="LastName">@Localizer["LastNameLabel"]</label>
+                <input asp-for="LastName" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label asp-for="Phone">@Localizer["PhoneLabel"]</label>
+                <input asp-for="Phone" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label asp-for="Email">@Localizer["EmailLabel"]</label>
+                <input asp-for="Email" type="email" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label asp-for="Address">@Localizer["AddressLabel"]</label>
+                <input asp-for="Address" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label for="DepositAmount">@Localizer["SelectDepositAmount"]</label>
+                <select id="DepositAmount" name="DepositAmount" class="form-control">
+                    <!-- Tùy chọn giá trị cọc sẽ được thêm qua JavaScript -->
+                </select>
+                <span asp-validation-for="DepositAmount" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="Quantity">@Localizer["Quantity"]</label>
+                <div class="input-group">
+                    <button type="button" class="btn btn-outline-secondary" onclick="decrementQuantity()">-</button>
+                    <input type="number" id="Quantity" name="Quantity" value="@Model.Quantity" min="1" class="form-control" required onchange="updateDepositOptions()" />
+                    <button type="button" class="btn btn-outline-secondary" onclick="incrementQuantity()">+</button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-3">@Localizer["ConfirmOrder"]</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Tính giá trị cọc tối thiểu và cập nhật dropdown
+    function updateDepositOptions() {
+        const quantityInput = document.getElementById('Quantity');
+        const productPrice = @Model.ProductPrice; // Lấy giá sản phẩm từ model
+        const quantity = parseInt(quantityInput.value);
+
+        // Tính giá trị cọc tối thiểu và tối đa
+        const minDeposit = Math.ceil((productPrice * quantity) / 2);
+        const maxDeposit = productPrice * quantity;
+
+        const depositSelect = document.getElementById('DepositAmount');
+        depositSelect.innerHTML = ''; // Xóa các tùy chọn hiện tại
+
+        // Thêm các tùy chọn mới vào dropdown (các khoảng tăng 10% giá trị)
+        for (let i = minDeposit; i <= maxDeposit; i += (maxDeposit - minDeposit) / 5) {
+            const roundedValue = i % 1 !== 0 ? Math.floor(i) : i;
+            const option = document.createElement('option');
+            option.value = roundedValue;
+            option.text = roundedValue.toLocaleString("vi-VN") + ' VND';
+            depositSelect.appendChild(option);
+        }
+    }
+
+    function incrementQuantity() {
+        var quantityInput = document.getElementById('Quantity');
+        quantityInput.value = parseInt(quantityInput.value) + 1;
+        updateDepositOptions(); // Cập nhật lại giá trị cọc
+    }
+
+    function decrementQuantity() {
+        var quantityInput = document.getElementById('Quantity');
+        if (quantityInput.value > 1) {
+            quantityInput.value = parseInt(quantityInput.value) - 1;
+            updateDepositOptions(); // Cập nhật lại giá trị cọc
+        }
+    }
+
+    // Khởi động cập nhật khi tải trang
+    document.addEventListener("DOMContentLoaded", function () {
+        updateDepositOptions();
+    });
+</script>

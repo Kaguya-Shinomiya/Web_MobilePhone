@@ -1,0 +1,373 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@model IEnumerable<WebDoDienTu.Models.Product>
+
+@{
+    var categories = ViewData["Categories"] as List<WebDoDienTu.Models.Category>;
+}
+
+@{
+    ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .wishlist-icon {
+        transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+        .wishlist-icon:hover {
+            transform: scale(1.2);
+            color: #ff6347;
+        }
+</style>
+
+<!-- Hero Start -->
+<div class="container-fluid py-5 mb-5 hero-header">
+    <div class="container py-5">
+        <div class="row g-5 align-items-center">
+            <div class="col-md-12 col-lg-7">
+                <h4 class="mb-3 text-secondary">@Localizer["ModernProducts"]</h4>
+                <h1 class="mb-5 display-3 text-primary">@Localizer["ModernProducts"]</h1>
+                <form asp-controller="Product" asp-action="Index" method="get">
+                    <div class="position-relative mx-auto">
+                        <input class="form-control border-2 border-secondary w-75 py-3 px-4 rounded-pill" type="search" name="keywords" placeholder="@Localizer["SearchPlaceholder"]">
+                        <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; right: 25%;">@Localizer["SearchButton"]</button>
+                    </div>
+                </form>
+            </div>
+            @* <div class="col-md-12 col-lg-5">
+                <div id="carouselId" class="carousel slide position-relative" data-bs-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="carousel-item rounded">
+                            <img src="image/banners/banner0.gif" class="img-fluid w-100 h-100 rounded" alt="Second slide">
+                        </div>
+                        <div class="carousel-item active rounded">
+                            <img src="image/banners/banner1.png" class="img-fluid w-100 h-100 bg-secondary rounded" alt="First slide">
+                        </div>
+                        <div class="carousel-item rounded">
+                            <img src="image/banners/banner2.png" class="img-fluid w-100 h-100 rounded" alt="Second slide">
+                        </div>
+                        <div class="carousel-item rounded">
+                            <img src="image/banners/banner3.png" class="img-fluid w-100 h-100 rounded" alt="Second slide">
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselId" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselId" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div> *@
+        </div>
+    </div>
+</div>
+<!-- Hero End -->       
+
+<!-- Products Shop Start-->
+<div class="container-fluid vesitable fruite py-5">
+    <div class="container py-5">
+        <div class="tab-class text-center">
+            <div class="row g-4">
+                <div class="col-lg-4 text-start">
+                    <h1>@Localizer["ProductsTitle"]</h1>
+                </div>
+                <div class="col-lg-8 text-end">
+                    <ul class="nav nav-pills d-inline-flex text-center mb-5">          
+                        <li class="nav-item">
+                            <a class="d-flex py-2 m-2 bg-light rounded-pill active" data-bs-toggle="pill" href="#tab-2">
+                                <span class="text-dark" style="width: 130px;">@Localizer["TabPhones"]</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="d-flex m-2 py-2 bg-light rounded-pill" data-bs-toggle="pill" href="#tab-3">
+                                <span class="text-dark" style="width: 130px;">@Localizer["TabTablets"]</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="d-flex m-2 py-2 bg-light rounded-pill" data-bs-toggle="pill" href="#tab-4">
+                                <span class="text-dark" style="width: 130px;">@Localizer["TabAudio"]</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="d-flex m-2 py-2 bg-light rounded-pill" data-bs-toggle="pill" href="#tab-5">
+                                <span class="text-dark" style="width: 130px;">@Localizer["TabAccessories"]</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tab-content">
+
+                <div id="tab-2" class="tab-pane fade show p-0 active">
+                    <div class="row g-4">
+                        <div class="col-lg-12">
+                            <div class="row g-4 gap-3 justify-content-center">
+                                @{
+                                    int countphone = 0;                                      
+                                    foreach (var product in Model)
+                                    {
+                                        if (product.CategoryId == 1)
+                                        {
+                                            if (countphone < 8)
+                                            {
+                                                if (product.ReleaseDate <= DateTime.UtcNow)
+                                                {
+                                                    // <div class="border border-primary rounded position-relative vesitable-item" style="height:550px; width: 300px">
+                                                    //     <div class="vesitable-img">
+                                                    //         <img src="@Html.DisplayFor(modelItem => product.ImageUrl)" class="img-fluid w-100 rounded-top" alt="">
+                                                    //     </div>
+                                                    //     <div class="p-4 rounded-bottom d-flex flex-column align-items-center">
+                                                    //         <h4 class="text-center">
+                                                    //             <a asp-action="Details" asp-controller="Product" asp-route-id="@product.ProductId">
+                                                    //                 @Html.DisplayFor(modelItem => product.ProductName)
+                                                    //             </a>
+                                                    //         </h4>
+                                                    //         <div class="position-absolute" style="bottom: 15px">
+                                                    //             <div class="mt-auto text-center">
+                                                    //                 <p class="text-dark fs-5 fw-bold mb-2">@product.Price.ToString("N0") VND</p>
+                                                    //             </div>
+                                                    //             <a asp-action="AddToCart" asp-controller="Cart" asp-route-productId="@product.ProductId" asp-route-quantity="1" class="btn border border-secondary rounded-pill px-3 text-primary mt-2">
+                                                    //                 <i class="fa fa-shopping-bag me-3 text-primary" style="cursor: pointer; font-size: 24px"></i>@Localizer["AddToCartButton"]
+                                                    //             </a>
+                                                    //         </div>
+                                                    //     </div>
+                                                    //     <!-- Form Add to Wishlist -->
+                                                    //     <form asp-action="AddToWishlist" asp-controller="Wishlist" method="post">
+                                                    //         <input type="hidden" name="productId" value="@product.ProductId" />
+                                                    //         <i class="fa fa-heart me-3 text-primary wishlist-icon" style="cursor: pointer; font-size: 24px; position: absolute; top: 7px; right: 0px;" onclick="this.closest('form').submit()"></i>
+                                                    //     </form>
+                                                    // </div>
+                                                    @await Html.PartialAsync("_ProductCard", product)
+                                                    countphone++;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-3" class="tab-pane fade show p-0">
+                    <div class="row g-4">
+                        <div class="col-lg-12">
+                            <div class="row g-4 gap-3 justify-content-center">
+                                @{
+                                    int countlaptop = 0;
+                                }
+                                @foreach (var product in Model)
+                                {
+                                    if (product.CategoryId == 3)
+                                    {
+                                        if (countlaptop < 8)
+                                        {
+                                            if (product.ReleaseDate <= DateTime.UtcNow)
+                                            {
+                                                @await Html.PartialAsync("_ProductCard", product)
+                                                countlaptop++;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-4" class="tab-pane fade show p-0">
+                    <div class="row g-4">
+                        <div class="col-lg-12">
+                            <div class="row g-4 gap-3 justify-content-center">
+
+                                @{
+                                    int countsound = 0;
+                                }
+                                @foreach (var product in Model)
+                                {
+                                    if (product.CategoryId == 2)
+                                    {
+                                        if (countsound < 8)
+                                        {
+                                            if (product.ReleaseDate <= DateTime.UtcNow)
+                                            {
+                                                @await Html.PartialAsync("_ProductCard", product)
+                                                countsound++;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-5" class="tab-pane fade show p-0">
+                    <div class="row g-4">
+                        <div class="col-lg-12">
+                            <div class="row g-4 gap-3 justify-content-center">
+                                @{
+                                    int countaccessory = 0;
+                                }
+                                @foreach (var product in Model)
+                                {
+                                    if (product.CategoryId == 4)
+                                    {
+                                        if (countaccessory < 8)
+                                        {
+                                            if (product.ReleaseDate <= DateTime.UtcNow)
+                                            {
+                                                @await Html.PartialAsync("_ProductCard", product)                                              
+                                                countaccessory++;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>      
+    </div>
+</div>
+<!-- Products Shop End-->
+
+@{
+    var productRelease = ViewData["ProductRelease"] as WebDoDienTu.Models.Product;
+
+    if (productRelease != null)
+    {
+        <!-- Banner Section Start-->
+        <div class="container-fluid banner my-5" style="
+                background-image: url('https://media.techz.vn/resize_x700x/media2019/source/1-Ve-2023/nam-2024/thang-6-2024/bai-1/acer/fpt/iphone-16-2.png');
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+                height: 400px;">
+            <div class="container py-5">
+                <div class="row g-4 align-items-center">
+                    <div class="col-lg-6">
+                        <div class="py-4">
+                            <a asp-area="" asp-controller="Cart" asp-action="PreOrder" asp-route-productId="@productRelease.ProductId" asp-route-quantity="1" class="banner-btn btn border-2 border-white rounded-pill text-white py-3 px-5">@Localizer["PreOrder"]</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Banner Section End -->
+    }
+}
+
+@{
+    bool check = false;
+    foreach (var pro in Model)
+    {
+        if (pro.IsHoted == true)
+        {
+            check = true;
+        }
+    }
+    if(check != false){
+        <!-- Sản phẩm nổi bậc-->
+        <div class="container-fluid vesitable py-5">
+            <div class="container py-5">
+                <h1 class="mb-0">@Localizer["ProductStart"]</h1>
+                <div class="owl-carousel vegetable-carousel justify-content-center">
+                    @{
+                        int count = 0;                   
+                        foreach (var product in Model)
+                        {
+                            if (product.IsHoted == true)
+                            {
+                                if (count < 8)
+                                {
+                                    @await Html.PartialAsync("_ProductCard", product)
+                                    count++;
+                                }
+                                else
+                                {
+                                    break; 
+                                }
+                            }
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <!-- End Sản phẩm nổi bậc -->
+    }
+}
+
+<!-- Featurs Section Start -->
+<div class="container-fluid featurs py-5">
+    <div class="container py-5">
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="featurs-item text-center rounded bg-light p-4">
+                    <div class="featurs-icon btn-square rounded-circle bg-secondary mb-5 mx-auto">
+                        <i class="fas fa-car-side fa-3x text-white"></i>
+                    </div>
+                    <div class="featurs-content text-center">
+                        <h5>@Localizer["FreeShippingTitle"]</h5>
+                        <p class="mb-0">@Localizer["FreeShippingDesc"]</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="featurs-item text-center rounded bg-light p-4">
+                    <div class="featurs-icon btn-square rounded-circle bg-secondary mb-5 mx-auto">
+                        <i class="fas fa-user-shield fa-3x text-white"></i>
+                    </div>
+                    <div class="featurs-content text-center">
+                        <h5>@Localizer["SecurePaymentTitle"]</h5>
+                        <p class="mb-0">@Localizer["SecurePaymentDesc"]</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="featurs-item text-center rounded bg-light p-4">
+                    <div class="featurs-icon btn-square rounded-circle bg-secondary mb-5 mx-auto">
+                        <i class="fas fa-exchange-alt fa-3x text-white"></i>
+                    </div>
+                    <div class="featurs-content text-center">
+                        <h5>@Localizer["ReturnPolicyTitle"]</h5>
+                        <p class="mb-0">@Localizer["ReturnPolicyDesc"]</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="featurs-item text-center rounded bg-light p-4">
+                    <div class="featurs-icon btn-square rounded-circle bg-secondary mb-5 mx-auto">
+                        <i class="fa fa-phone-alt fa-3x text-white"></i>
+                    </div>
+                    <div class="featurs-content text-center">
+                        <h5>@Localizer["SupportTitle"]</h5>
+                        <p class="mb-0">@Localizer["SupportDesc"]</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Featurs Section End -->
