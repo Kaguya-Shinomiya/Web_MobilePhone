@@ -2,3 +2,4 @@
 # Library
 - sentencepiece
 - transformers
+- pyodbc
