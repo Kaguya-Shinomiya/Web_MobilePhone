@@ -12,13 +12,12 @@ model_name = "Helsinki-NLP/opus-mt-mul-en"
 
 
 # Cấu hình kết nối đến MS SQL Server
-DB_SERVER = "DESKTOP-ASB6N02\\QUANGBAO"
-DB_DATABASE = "E-Commerce Moblie"
-DB_USERNAME = "sa"
-DB_PASSWORD = "12345"
+DB_SERVER = "MSI\SQLEXPRESS"
+DB_DATABASE = "QLDoDienTu"
+
 
 # Chuỗi kết nối
-conn_str = f"DRIVER={{SQL Server}};SERVER={DB_SERVER};DATABASE={DB_DATABASE};UID={DB_USERNAME};PWD={DB_PASSWORD}"
+conn_str = f"DRIVER={{SQL Server}};SERVER={DB_SERVER};DATABASE={DB_DATABASE}"
 
 # def insert_into_database(product_id, user_id, your_name, your_email, rating, comment, review_date, is_hidden):
 #     try:
