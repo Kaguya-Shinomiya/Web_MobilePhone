@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Text;
 using System.Text.Json;
+using System.Text;
 using WebDoDienTu.Data;
 using WebDoDienTu.Models;
+
 
 namespace WebDoDienTu.Controllers
 {
@@ -22,13 +23,7 @@ namespace WebDoDienTu.Controllers
         [HttpPost]
         public async Task<IActionResult> AddReview(int productId,string name, string email, int rating, string comment)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (!User.Identity.IsAuthenticated)
-            {
-                return Json(new { success = false, message = "Vui lòng đăng nhập để thực hiện đánh giá!" });
-            }
-
-            var emotion = "";
+			var emotion = "";
 			using (HttpClient client = new HttpClient())
 			{
 				var requestData = new { Comment = comment }; // Dữ liệu gửi đi
@@ -43,7 +38,11 @@ namespace WebDoDienTu.Controllers
 					{
 						var jsonResponse = await response.Content.ReadAsStringAsync();
 						var data = JsonSerializer.Deserialize<JsonElement>(jsonResponse);
+
+						// Lấy giá trị của "message"
 						emotion = data.GetProperty("message").GetString();
+						//emotion = data?["message"];
+						//Console.WriteLine(emotion);
 					}
 					catch (Exception ex)
 					{
@@ -55,19 +54,23 @@ namespace WebDoDienTu.Controllers
 					return Json(new { success = false, message = "Lỗi khi gọi API!" });
 				}
 			}
-			//Console.WriteLine(emotion);
-			//return Json(new { success = true, message = emotion });
+			var user = await _userManager.GetUserAsync(User);
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Json(new { success = false, message = "Vui lòng đăng nhập để thực hiện đánh giá!" });
+            }
 
-
-			//var review = new ProductReview
-			//         {
-			//             ProductId = productId,
-			//             UserId = user.Id,
-			//             YourName = name,
-			//             YourEmail = email,
-			//             Rating = rating,
-			//             Comment = comment
-			//         };
+            var review = new ProductReview
+            {
+                ProductId = productId,
+                UserId = user.Id,
+                YourName = name,
+                YourEmail = email,
+                Rating = rating,
+                Comment = comment,
+				Emotional = emotion
+				
+			};
 
 			//         _context.ProductReviews.Add(review);
 			//         await _context.SaveChangesAsync();
@@ -75,6 +78,7 @@ namespace WebDoDienTu.Controllers
 			TempData["SuccessMessage"] = "Your review has been submitted successfully!";
 
             return Json(new { success = true, message = "Your review has been submitted successfully!" });
+
         }
     }
 }
