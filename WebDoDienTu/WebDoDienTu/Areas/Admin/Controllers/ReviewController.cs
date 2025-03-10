@@ -19,7 +19,10 @@ namespace WebDoDienTu.Areas.Admin.Controllers
 
         public IActionResult ManageReviews()
         {
-            var reviews = _context.ProductReviews.Include(r => r.Product).ToList();
+            var reviews = _context.ProductReviews
+                .Include(r => r.Product)
+                .ToList(); // Không cần .Where() vì Emotions đã cho phép NULL
+
             return View(reviews);
         }
 

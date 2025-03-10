@@ -37,6 +37,12 @@ internal class Program
                         .AddDefaultTokenProviders()
                         .AddDefaultUI();
 
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+            options.AddPolicy("RequireUserRole", policy => policy.RequireRole("User"));
+        });
+
         // Configure localization
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
         builder.Services.AddControllersWithViews()
@@ -209,7 +215,7 @@ internal class Program
         app.UseAuthorization();
 
         // Create default admin user
-        CreateDefaultAdminUser(app).GetAwaiter().GetResult();
+        //CreateDefaultAdminUser(app).GetAwaiter().GetResult();
 
         app.MapRazorPages();
         app.MapControllerRoute(

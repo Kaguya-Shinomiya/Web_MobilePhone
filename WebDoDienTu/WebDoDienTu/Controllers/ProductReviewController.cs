@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
+using System.Text.Json;
 using WebDoDienTu.Data;
 using WebDoDienTu.Models;
 
@@ -26,20 +28,51 @@ namespace WebDoDienTu.Controllers
                 return Json(new { success = false, message = "Vui lòng đăng nhập để thực hiện đánh giá!" });
             }
 
-            var review = new ProductReview
-            {
-                ProductId = productId,
-                UserId = user.Id,
-                YourName = name,
-                YourEmail = email,
-                Rating = rating,
-                Comment = comment
-            };
+            var emotion = "";
+			using (HttpClient client = new HttpClient())
+			{
+				var requestData = new { Comment = comment }; // Dữ liệu gửi đi
+				var jsonRequest = JsonSerializer.Serialize(requestData);
+				var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
 
-            _context.ProductReviews.Add(review);
-            await _context.SaveChangesAsync();
+				var response = await client.PostAsync("http://127.0.0.1:5000/insert", content);
 
-            TempData["SuccessMessage"] = "Your review has been submitted successfully!";
+				if (response.IsSuccessStatusCode)
+				{
+					try
+					{
+						var jsonResponse = await response.Content.ReadAsStringAsync();
+						var data = JsonSerializer.Deserialize<JsonElement>(jsonResponse);
+						emotion = data.GetProperty("message").GetString();
+					}
+					catch (Exception ex)
+					{
+						Console.WriteLine(ex);
+					}
+				}
+				else
+				{
+					return Json(new { success = false, message = "Lỗi khi gọi API!" });
+				}
+			}
+			//Console.WriteLine(emotion);
+			//return Json(new { success = true, message = emotion });
+
+
+			//var review = new ProductReview
+			//         {
+			//             ProductId = productId,
+			//             UserId = user.Id,
+			//             YourName = name,
+			//             YourEmail = email,
+			//             Rating = rating,
+			//             Comment = comment
+			//         };
+
+			//         _context.ProductReviews.Add(review);
+			//         await _context.SaveChangesAsync();
+
+			TempData["SuccessMessage"] = "Your review has been submitted successfully!";
 
             return Json(new { success = true, message = "Your review has been submitted successfully!" });
         }

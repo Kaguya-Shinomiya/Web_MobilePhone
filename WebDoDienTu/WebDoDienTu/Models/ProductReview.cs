@@ -37,5 +37,8 @@ namespace WebDoDienTu.Models
         public DateTime ReviewDate { get; set; } = DateTime.UtcNow;
 
         public bool IsHidden { get; set; } = false;
+
+        public string? Emotions { get; set; }  // New Emotions property
     }
 }
+
