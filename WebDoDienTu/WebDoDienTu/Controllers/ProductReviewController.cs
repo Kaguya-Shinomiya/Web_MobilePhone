@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Mailjet.Client.Resources;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
@@ -6,79 +6,84 @@ using System.Text;
 using WebDoDienTu.Data;
 using WebDoDienTu.Models;
 
-
-namespace WebDoDienTu.Controllers
+public class ProductReviewController : Controller
 {
-    public class ProductReviewController : Controller
+    private readonly ApplicationDbContext _context;
+    private readonly UserManager<ApplicationUser> _userManager;
+
+    public ProductReviewController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        _context = context;
+        _userManager = userManager;
+    }
 
-        public ProductReviewController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+    [HttpPost]
+    public async Task<IActionResult> AddReview(int productId, int rating, string comment)
+    {
+        var emotion = "";
+        using (HttpClient client = new HttpClient())
         {
-            _context = context;
-            _userManager = userManager;
-        }
+            var requestData = new { Comment = comment };
+            var jsonRequest = JsonSerializer.Serialize(requestData);
+            var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
 
-        [HttpPost]
-        public async Task<IActionResult> AddReview(int productId,string name, string email, int rating, string comment)
-        {
-			var emotion = "";
-			using (HttpClient client = new HttpClient())
-			{
-				var requestData = new { Comment = comment }; // Dữ liệu gửi đi
-				var jsonRequest = JsonSerializer.Serialize(requestData);
-				var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+            var response = await client.PostAsync("http://127.0.0.1:5000/insert", content);
 
-				var response = await client.PostAsync("http://127.0.0.1:5000/insert", content);
-
-				if (response.IsSuccessStatusCode)
-				{
-					try
-					{
-						var jsonResponse = await response.Content.ReadAsStringAsync();
-						var data = JsonSerializer.Deserialize<JsonElement>(jsonResponse);
-
-						// Lấy giá trị của "message"
-						emotion = data.GetProperty("message").GetString();
-						//emotion = data?["message"];
-						//Console.WriteLine(emotion);
-					}
-					catch (Exception ex)
-					{
-						Console.WriteLine(ex);
-					}
-				}
-				else
-				{
-					return Json(new { success = false, message = "Lỗi khi gọi API!" });
-				}
-			}
-			var user = await _userManager.GetUserAsync(User);
-            if (!User.Identity.IsAuthenticated)
+            if (response.IsSuccessStatusCode)
             {
-                return Json(new { success = false, message = "Vui lòng đăng nhập để thực hiện đánh giá!" });
+                try
+                {
+                    var jsonResponse = await response.Content.ReadAsStringAsync();
+                    var data = JsonSerializer.Deserialize<JsonElement>(jsonResponse);
+
+
+                    emotion = data.GetProperty("message").GetString();
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
             }
-
-            var review = new ProductReview
+            else
             {
-                ProductId = productId,
-                UserId = user.Id,
-                YourName = name,
-                YourEmail = email,
-                Rating = rating,
-                Comment = comment,
-				Emotional = emotion
-				
-			};
-
-			//         _context.ProductReviews.Add(review);
-			//         await _context.SaveChangesAsync();
-
-			TempData["SuccessMessage"] = "Your review has been submitted successfully!";
-
-            return Json(new { success = true, message = "Your review has been submitted successfully!" });
-
+                return Json(new { success = false, message = "Lỗi khi gọi API!" });
+            }
         }
+        var user = await _userManager.GetUserAsync(User);
+
+        
+        if (!User.Identity.IsAuthenticated)
+        {
+            return Json(new { success = false, message = "Vui lòng đăng nhập!" });
+        }
+
+
+        if (rating < 1 || rating > 5)
+        {
+            return Json(new { success = false, message = "Đánh giá phải từ 1-5 sao!" });
+        }
+
+
+        if (user == null || string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.UserName))
+        {
+            return Json(new { success = false, message = "Thông tin người dùng không hợp lệ!" });
+        }
+
+        var review = new ProductReview
+        {
+            ProductId = productId,
+            UserId = user.Id,
+            YourName = user.UserName, 
+            YourEmail = user.Email,
+            Rating = rating,
+            Comment = comment,       
+            Emotions = emotion     
+        };
+
+        _context.ProductReviews.Add(review);
+        await _context.SaveChangesAsync();
+
+        return Json(new { success = true, message = "Đánh giá thành công!" });
     }
 }

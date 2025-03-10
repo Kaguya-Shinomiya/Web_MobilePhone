@@ -19,6 +19,9 @@
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Update="Resources\Views\Product\Details.vi-VN.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Update="Resources\Views\Shared\_ProductCard.vi-VN.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>

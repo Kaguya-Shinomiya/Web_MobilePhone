@@ -21,7 +21,7 @@ namespace WebDoDienTu.Areas.Admin.Controllers
         {
             var reviews = _context.ProductReviews
                 .Include(r => r.Product)
-                .ToList(); // Không cần .Where() vì Emotions đã cho phép NULL
+                .ToList();
 
             return View(reviews);
         }

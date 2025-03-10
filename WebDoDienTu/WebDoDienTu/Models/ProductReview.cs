@@ -38,7 +38,7 @@ namespace WebDoDienTu.Models
 
         public bool IsHidden { get; set; } = false;
 
-        public string? Emotions { get; set; }  // New Emotions property
+        public string? Emotions { get; set; }
     }
 }
 
