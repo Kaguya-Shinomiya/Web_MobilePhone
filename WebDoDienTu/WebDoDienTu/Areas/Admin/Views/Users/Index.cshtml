@@ -1,0 +1,105 @@
+﻿@model IEnumerable<WebDoDienTu.Models.ApplicationUser>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div style="margin-top:25px" class="alert alert-warning" role="alert">
+        @TempData["ErrorMessage"]
+    </div>
+}
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Danh sách người dùng</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a asp-area="admin" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li class="breadcrumb-item active">Users</li>
+        </ol>
+        <div class="card mb-4">
+            <div class="card-body">
+                <button id="addProduct" type="submit" class="btn btn-primary"><a asp-action="Create" style="text-decoration: none; color: white">Thêm người dùng</a></button>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-table me-1"></i>
+            </div>
+            <div class="card-body">
+                <table id="datatablesSimple">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Tên người dùng</th>
+                            <th>@Html.DisplayNameFor(model => model.FirstName)</th>
+                            <th>@Html.DisplayNameFor(model => model.LastName)</th>
+                            <th>@Html.DisplayNameFor(model => model.Age)</th>
+                            <th>@Html.DisplayNameFor(model => model.Email)</th>
+                            <th>Số điện thoại</th>                         
+                            <th>Địa chỉ</th>
+                            <th>Sửa</th>
+                            <th>Xem</th>
+                            <th>Xóa</th>
+                            <th>Block</th>
+                            <th>UnBlock</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int soThuTu = 1;
+                        }
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@soThuTu</td>
+                                <td>@Html.DisplayFor(modelItem => item.UserName)</td>
+                                <td>@Html.DisplayFor(modelItem => item.FirstName)</td>                              
+                                <td>@Html.DisplayFor(modelItem => item.LastName)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Age)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                                <td>@Html.DisplayFor(modelItem => item.PhoneNumber)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Address)</td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.Id"><i class="fa-regular fa-pen-to-square"></i></a>
+                                </td>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@item.Id"><i class="fa-solid fa-eye"></i></a>
+                                </td>
+                                <td>
+                                    <a asp-action="Delete" asp-route-id="@item.Id"><i class="fa-solid fa-trash"></i></a>
+                                </td>
+                                <td>
+                                    @if (item.IsBlocked == false || item.IsBlocked == null)
+                                    {
+                                        <form method="post">
+                                            <button type="submit" class="btn btn-danger" asp-controller="Users" asp-action="BlockUser" asp-route-userId="@item.Id">Block</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <p>Blocked</p>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.IsBlocked == true)
+                                    {
+                                        <form method="post">
+                                            <button type="submit" class="btn btn-danger" asp-controller="Users" asp-action="UnBlockUser" asp-route-userId="@item.Id">UnBlock</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <p>UnBlocked</p>
+                                    }
+                                </td>
+                            </tr>
+                            soThuTu++;
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>

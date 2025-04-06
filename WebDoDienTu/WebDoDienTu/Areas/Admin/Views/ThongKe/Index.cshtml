@@ -1,0 +1,188 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Thống kê</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+            <li class="breadcrumb-item active">Thống kê</li>
+        </ol>
+        <div class="card mb-4">
+            <div class="card-body">
+                <form action="@Url.Action("ExportRevenueByMonth", "ThongKe")" method="post">
+                    <button type="submit" class="btn btn-primary">Xuất excel doanh thu tháng</button>
+                </form>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-chart-area me-1"></i>
+                Doanh thu theo tháng
+            </div>
+            <div class="card-body"><canvas id="myAreaChart" width="100%" height="30"></canvas></div>
+            <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-chart-area me-1"></i>
+                Sản phẩm bán chạy
+            </div>
+            <div class="card-body"><canvas id="myPieChart" width="100%" height="50"></canvas></div>
+            <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+        </div>
+
+        @* <div class="row">
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-chart-area me-1"></i>
+                        Doanh thu theo tháng
+                    </div>
+                    <div class="card-body"><canvas id="myAreaChart" width="100%" height="30"></canvas></div>
+                    <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-chart-area me-1"></i>
+                        Sản phẩm bán chạy
+                    </div>
+                    <div class="card-body"><canvas id="myPieChart" width="100%" height="50"></canvas></div>
+                    <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+                </div>
+            </div>
+        </div> *@
+    </div>
+</main>
+
+@{
+    var revenueByMonth = ViewBag.RevenueByMonth as Dictionary<int, decimal>;
+}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var ctx = document.getElementById("myAreaChart").getContext('2d');
+        var maxRevenue = Math.max.apply(Math, [
+                @revenueByMonth[1], @revenueByMonth[2], @revenueByMonth[3],
+                @revenueByMonth[4], @revenueByMonth[5], @revenueByMonth[6],
+                @revenueByMonth[7], @revenueByMonth[8], @revenueByMonth[9],
+                @revenueByMonth[10], @revenueByMonth[11], @revenueByMonth[12]
+            ]);
+        var stepSize = Math.ceil(maxRevenue / 5 / 5000000) * 5000000; // Số mức = 5, mỗi mức cách nhau 5 triệu đồng
+
+        var myLineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+                datasets: [{
+                    label: "Doanh thu",
+                    lineTension: 0.3,
+                    backgroundColor: "rgba(2,117,216,0.2)",
+                    borderColor: "rgba(2,117,216,1)",
+                    pointRadius: 5,
+                    pointBackgroundColor: "rgba(2,117,216,1)",
+                    pointBorderColor: "rgba(255,255,255,0.8)",
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: "rgba(2,117,216,1)",
+                    pointHitRadius: 50,
+                    pointBorderWidth: 2,
+                    data: [
+                        @revenueByMonth[1], // Tháng 1
+                        @revenueByMonth[2], // Tháng 2
+                        @revenueByMonth[3], // Tháng 3
+                        @revenueByMonth[4], // Tháng 4
+                        @revenueByMonth[5], // Tháng 5
+                        @revenueByMonth[6], // Tháng 6
+                        @revenueByMonth[7], // Tháng 7
+                        @revenueByMonth[8], // Tháng 8
+                        @revenueByMonth[9], // Tháng 9
+                        @revenueByMonth[10], // Tháng 10
+                        @revenueByMonth[11], // Tháng 11
+                        @revenueByMonth[12] // Tháng 12
+                        ],
+                }],
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        time: {
+                            unit: 'month'
+                        },
+                        gridLines: {
+                            display: false
+                        },
+                        ticks: {
+                            maxTicksLimit: 12
+                        }
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            min: 0,
+                            max: Math.ceil(maxRevenue / stepSize) * stepSize, // Tối đa là bội số của 5 triệu đồng lớn hơn maxRevenue
+                            stepSize: stepSize,
+                            callback: function (value) {
+                                return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }); // Định dạng tiền tệ
+                            }
+                        },
+                        gridLines: {
+                            color: "rgba(0, 0, 0, .125)",
+                        }
+                    }],
+                },
+                legend: {
+                    display: true
+                },
+                tooltips: {
+                    callbacks: {
+                        label: function (tooltipItem, data) {
+                            var label = data.datasets[tooltipItem.datasetIndex].label || '';
+                            label += ': ';
+                            label += tooltipItem.yLabel.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                            return label;
+                        }
+                    }
+                }
+            }
+        });
+    });
+
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var ctx = document.getElementById('myPieChart').getContext('2d');
+        var chartData = {
+            labels: JSON.parse('@Html.Raw(ViewBag.ProductNames)'),
+            datasets: [{
+                label: 'Most Purchased Products',
+                data: JSON.parse('@Html.Raw(ViewBag.ProductQuantities)'),
+                backgroundColor: ['#007bff', '#dc3545', '#ffc107', '#28a745', '#6f42c1']
+            }]
+        };
+
+        var pieChart = new Chart(ctx, {
+            type: 'pie',
+            data: chartData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Top 5 Most Purchased Products'
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="~/admin/js/scripts.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>

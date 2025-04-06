@@ -1,0 +1,207 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@model ShoppingCart
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (TempData["EmptyCartMessage"] != null)
+{
+    <div style="margin-top:25px" class="alert alert-warning" role="alert">
+        @TempData["EmptyCartMessage"]
+    </div>
+}
+
+<!-- Single Page Header start -->
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">@Localizer["CartDetails"]</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">@Localizer["Home"]</a></li>
+        <li class="breadcrumb-item active text-white">@Localizer["CartDetails"]</li>
+    </ol>
+</div>
+<!-- Single Page Header End -->
+
+<!-- Cart Page Start -->
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">@Localizer["Image"]</th>
+                        <th scope="col">@Localizer["ProductName"]</th>
+                        <th scope="col">@Localizer["Price"]</th>
+                        <th scope="col">@Localizer["Quantity"]</th>
+                        <th scope="col">@Localizer["Total"]</th>
+                        <th scope="col">@Localizer["Remove"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        foreach (var item in Model.Items)
+                        {
+                            <tr id="item-@item.ProductId">
+                                <th scope="row">
+                                    <div class="d-flex align-items-center">
+                                        <img src="@item.Image" class="img-fluid me-5" style="width: 80px; height: 80px;" alt="">
+                                    </div>
+                                </th>
+                                <td>
+                                    <p class="mb-0 mt-4">@item.NameProduct</p>
+                                </td>
+                                <td>
+                                    <p class="product-price mb-0 mt-4">@item.Price.ToString("N0") VND</p>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <button class="btn btn-sm btn-outline-secondary me-2 mt-4" onclick="updateQuantity('@item.ProductId', -1)">-</button>
+                                        <p class="mb-0 mt-4" id="quantity-@item.ProductId">@item.Quantity</p>
+                                        <button class="btn btn-sm btn-outline-secondary ms-2 mt-4" onclick="updateQuantity('@item.ProductId', 1)">+</button>
+                                    </div>
+                                </td>
+                                @{
+                                    var total = item.Price * item.Quantity;
+                                }
+                                <td>
+                                    <p class="mb-0 mt-4 product-total" id="total-@item.ProductId">@total.ToString("N0") VND</p>
+                                </td>
+                                <td>
+                                    <a asp-area="" asp-controller="Cart" asp-action="RemoveFromCart" asp-route-productId="@item.ProductId">
+                                        <button class="btn btn-md rounded-circle bg-light border mt-4">
+                                            <i class="fa fa-times text-danger"></i>
+                                        </button>
+                                    </a>                                   
+                                </td>
+                            </tr>
+                        }
+                    }                                      
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-5">
+            <select id="couponCode" type="text" class="border-0 border-bottom rounded me-5 py-3 mb-4">
+                <option value="" selected disabled>@Localizer["CouponCodePlaceholder"]</option>
+                @foreach (var promo in ViewBag.Promotions)
+                {
+                    <option value="@promo.Code">@promo.Code</option>
+                }
+            </select>
+            <button class="btn border-secondary rounded-pill px-4 py-3 text-primary" type="button" onclick="applyCoupon()">@Localizer["ApplyCoupon"]</button>
+        </div>
+
+        <div class="row g-4 justify-content-end">
+            <div class="col-sm-10 col-md-8 col-lg-8 col-xl-6">
+                <div class="bg-light rounded p-3">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="mb-0 ps-4 me-4">@Localizer["Subtotal"]</h5>
+                        <p id="originalPrice" class="mb-0 pe-4">@Model.Items.Sum(x => x.Price * x.Quantity).ToString("N0") VND</p>
+                    </div>                     
+                    <div class="d-flex justify-content-between mt-3">
+                        <h5 class="mb-0 ps-4 me-4">@Localizer["Discount"]</h5>
+                        <p id="discountPrice" class="mb-0 pe-4">0 VND</p>
+                    </div>                    
+                    <div class="py-4 my-4 border-top border-bottom d-flex justify-content-between">
+                        <h5 class="mb-0 ps-4 me-4">@Localizer["GrandTotal"]</h5>
+                        <p id="totalPrice" class="mb-0 pe-4">@Model.Items.Sum(x => x.Price * x.Quantity).ToString("N0") VND</p>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a asp-controller="Product" asp-action="Index" class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase">
+                            @Localizer["ContinueShopping"]
+                        </a>
+                        <a id="checkoutLink" class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase" type="button" href="/Cart/Checkout">@Localizer["Checkout"]</a>
+                    </div>
+                </div>
+            </div>
+        </div>    
+    </div>
+</div>
+<!-- Cart Page End -->
+
+<script>
+    async function applyCoupon() {
+        const couponCode = document.getElementById('couponCode').value;
+        const discountPriceElement = document.getElementById('discountPrice');
+        const totalPriceElement = document.getElementById('totalPrice');
+        const originalTotalPrice = @Model.Items.Sum(x => x.Price * x.Quantity);
+
+        if (!couponCode) {
+            alert('Vui lòng nhập mã giảm giá.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/promotion/${couponCode}`);
+            if (!response.ok) {
+                throw new Error('Mã giảm giá không hợp lệ hoặc đã hết hạn.');
+            }
+
+            const promotion = await response.json();
+            const discountPrice = promotion.isPercentage ? originalTotalPrice * promotion.discountPercentage / 100 : promotion.discountAmount;
+            const finalPrice = originalTotalPrice - discountPrice;
+
+            discountPriceElement.innerText = discountPrice.toLocaleString("vi-VN", { maximumFractionDigits: 0 }) + ' VND'
+            totalPriceElement.innerText = finalPrice.toLocaleString("vi-VN", { maximumFractionDigits: 0 }) + ' VND';
+
+            const checkoutLink = document.getElementById('checkoutLink');
+            checkoutLink.href = `/Cart/Checkout?voucherCode=${couponCode}`;
+
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
+    async function updateQuantity(productId, change) {
+        const quantityElement = document.getElementById(`quantity-${productId}`);
+        let currentQuantity = parseInt(quantityElement.innerText);
+
+        let newQuantity = currentQuantity + change;
+
+        if (newQuantity < 1) newQuantity = 1;
+        if (newQuantity > 3) newQuantity = 3;
+
+        quantityElement.innerText = newQuantity;
+
+        try {
+            const response = await fetch(`/Cart/UpdateQuantity?productId=${productId}&quantity=${newQuantity}`, {
+                method: 'POST'
+            });
+            if (!response.ok) {
+                throw new Error('Không thể cập nhật số lượng sản phẩm.');
+            }
+            const updatedCart = await response.json();
+            console.log(updatedCart)
+            const itemElement = document.querySelector(`#item-${productId}`);
+            const priceElement = itemElement.querySelector('.product-price');
+            const totalElement = itemElement.querySelector('.product-total');
+            console.log(itemElement)
+            console.log(priceElement)
+            console.log(totalElement)
+
+            const product = updatedCart.items.$values.find(item => item.productId == productId);
+            console.log(product)
+            const itemTotal = product.price * product.quantity;
+
+            console.log(itemTotal)
+
+            // Cập nhật lại thành tiền của sản phẩm trong bảng
+            totalElement.innerText = itemTotal.toLocaleString("vi-VN", { maximumFractionDigits: 0 }) + ' VND';
+
+            updateCartSummary(updatedCart);
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
+    function updateCartSummary(cart) {
+        if (cart && cart.items && Array.isArray(cart.items.$values)) {
+            const originalTotalPrice = cart.items.$values.reduce((total, item) => total + item.price * item.quantity, 0);
+            const totalPriceElement = document.getElementById('totalPrice');
+            totalPriceElement.innerText = originalTotalPrice.toLocaleString("vi-VN", { maximumFractionDigits: 0 }) + ' VND';
+        } else {
+            console.error("Dữ liệu giỏ hàng không hợp lệ.");
+        }
+    }
+</script>

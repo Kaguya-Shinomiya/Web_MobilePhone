@@ -1,0 +1,79 @@
+﻿@model WebDoDienTu.Models.Promotion
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Thông tin voucher</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a asp-area="admin" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li class="breadcrumb-item active">Update Voucher</li>
+        </ol>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4>Voucher</h4>
+                <hr />
+                <div class="row">
+                    <div class="col-md-4">
+                        <form asp-action="Edit">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <input type="hidden" asp-for="Id" />
+                            <div class="form-group">
+                                <label asp-for="Code" class="control-label"></label>
+                                <input asp-for="Code" class="form-control" />
+                                <span asp-validation-for="Code" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="DiscountAmount" class="control-label"></label>
+                                <input asp-for="DiscountAmount" class="form-control" />
+                                <span asp-validation-for="DiscountAmount" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="DiscountPercentage" class="control-label"></label>
+                                <input asp-for="DiscountPercentage" class="form-control" />
+                                <span asp-validation-for="DiscountPercentage" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="MinimumOrderAmount" class="control-label"></label>
+                                <input asp-for="MinimumOrderAmount" class="form-control" />
+                                <span asp-validation-for="MinimumOrderAmount" class="text-danger"></span>
+                            </div>
+                            <div class="form-group form-check">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" asp-for="IsPercentage" /> @Html.DisplayNameFor(model => model.IsPercentage)
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="StartDate" class="control-label"></label>
+                                <input asp-for="StartDate" class="form-control" />
+                                <span asp-validation-for="StartDate" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="EndDate" class="control-label"></label>
+                                <input asp-for="EndDate" class="form-control" />
+                                <span asp-validation-for="EndDate" class="text-danger"></span>
+                            </div>
+                            <div class="form-group form-check">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
+                                </label>
+                            </div>
+                            <br />
+                            <div class="form-group">
+                                <input type="submit" value="Lưu" class="btn btn-primary" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <br />
+                <div>
+                    <a asp-action="Index">Trở về</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

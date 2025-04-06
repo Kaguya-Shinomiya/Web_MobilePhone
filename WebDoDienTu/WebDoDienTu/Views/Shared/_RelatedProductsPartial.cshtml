@@ -1,0 +1,40 @@
+﻿@model List<WebDoDienTu.Models.Product>
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+@if(Model.Any()){
+    <div class="container-fluid vesitable py-5">
+        <div class="container py-5">
+            <h1 class="mb-0">Gợi ý sản phẩm</h1>
+            <div class="owl-carousel vegetable-carousel justify-content-center d-flex">
+                @foreach (var product in Model)
+                {
+                    <div class="border border-primary rounded position-relative vesitable-item" style="height:550px; width: 300px">
+                        <div class="vesitable-img">
+                            <img src="@Html.DisplayFor(modelItem => product.ImageUrl)" class="img-fluid w-100 rounded-top" alt="">
+                        </div>
+                        <div class="p-4 rounded-bottom d-flex flex-column align-items-center">
+                            <h4 class="text-center">
+                                <a asp-action="Details" asp-controller="Product" asp-route-id="@product.ProductId">
+                                    @Html.DisplayFor(modelItem => product.ProductName)
+                                </a>
+                            </h4>
+                            <div class="position-absolute" style="bottom: 15px">
+                                <div class="mt-auto text-center">
+                                    <p class="text-dark fs-5 fw-bold mb-2">@product.Price.ToString("N0") VND</p>
+                                </div>
+                                <a asp-action="AddToCart" asp-controller="Cart" asp-route-productId="@product.ProductId" asp-route-quantity="1" class="btn border border-secondary rounded-pill px-3 text-primary mt-2">
+                                    <i class="fa fa-shopping-bag me-3 text-primary" style="cursor: pointer; font-size: 24px"></i>Thêm giỏ hàng
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Form Add to Wishlist -->
+                        <form asp-action="AddToWishlist" asp-controller="Wishlist" method="post">
+                            <input type="hidden" name="productId" value="@product.ProductId" />
+                            <i class="fa fa-heart me-3 text-primary wishlist-icon" style="cursor: pointer; font-size: 24px; position: absolute; top: 7px; right: 0px;" onclick="this.closest('form').submit()"></i>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,157 @@
+﻿@model WebDoDienTu.Models.Product
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* Classic Thumbnail Style */
+.classic-thumbnail {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    object-fit: cover;
+    transition: none;
+}
+
+/* Container for Image Grid */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.col-md-4 {
+    width: 33.33%;
+    padding: 5px;
+}
+
+.col-md-6 {
+    width: 50%;
+    padding: 15px;
+}
+
+/* Basic styling for links */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Video Thumbnail */
+.classic-thumbnail.video-thumbnail {
+    display: block;
+    max-width: 100%;
+}
+</style>
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Thông tin sản phẩm</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a asp-area="admin" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li class="breadcrumb-item active">Detail Product</li>
+        </ol>
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <!-- Cột bên trái: Classic Thumbnail Gallery -->
+                    <div class="col-md-6">
+                        <h4>Hình ảnh sản phẩm</h4>
+                        <div class="mb-3">
+                            <!-- Classic Thumbnail for Main Image -->
+                            <a href="@Html.DisplayFor(model => model.ImageUrl)" data-fancybox="gallery">
+                                <img src="@Html.DisplayFor(model => model.ImageUrl)" class="img-fluid classic-thumbnail" alt="Main Product Image" />
+                            </a>
+                        </div>
+                        <div class="mb-3" hidden>
+                            <h5>Hình ảnh bổ sung</h5>
+                            <div class="row">
+                                @if (Model.Images != null && Model.Images.Count > 0)
+                                {
+                                    foreach (var image in Model.Images)
+                                    {
+                                        <div class="col-md-4 mb-2">
+                                            <a href="@image.Url" data-fancybox="gallery">
+                                                <img src="@image.Url" class="img-fluid classic-thumbnail" alt="Additional Image" />
+                                            </a>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <span>Không có hình ảnh bổ sung</span>
+                                }
+                            </div>
+                        </div>
+                        <div hidden>
+                            <h5>Video</h5>
+                            @if (!string.IsNullOrEmpty(Model.VideoUrl))
+                            {
+                                <a href="@Model.VideoUrl" data-fancybox="gallery" data-type="iframe">
+                                    <img src="https://img.youtube.com/vi/@Model.VideoUrl/0.jpg" class="img-fluid classic-thumbnail" alt="Video Thumbnail" />
+                                </a>
+                            }
+                            else
+                            {
+                                <span>Không có video</span>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Cột bên phải: Thông tin sản phẩm -->
+                    <div class="col-md-6">
+                        <h4>Chi tiết sản phẩm</h4>
+                        <hr />
+                        <dl class="row">
+                            <dt class="col-sm-4">
+                                @Html.DisplayNameFor(model => model.ProductName)
+                            </dt>
+                            <dd class="col-sm-8">
+                                @Html.DisplayFor(model => model.ProductName)
+                            </dd>
+                            <dt class="col-sm-4">
+                                @Html.DisplayNameFor(model => model.Price)
+                            </dt>
+                            <dd class="col-sm-8">
+                                @Model.Price.ToString("N0") VND
+                            </dd>
+                            <dt class="col-sm-4">
+                                @Html.DisplayNameFor(model => model.Description)
+                            </dt>
+                            <dd class="col-sm-8">
+                                @Html.DisplayFor(model => model.Description)
+                            </dd>
+                            <dt class="col-sm-4">
+                                Loại sản phẩm
+                            </dt>
+                            <dd class="col-sm-8">
+                                @Html.DisplayFor(model => model.Category.CategoryName)
+                            </dd>
+                        </dl>
+
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model?.ProductId" class="btn btn-warning">Cập nhật</a> |
+                            <a asp-action="Index" class="btn btn-secondary">Trở về</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    $(document).ready(function () {
+        $('[data-fancybox="gallery"]').fancybox({
+            buttons: [
+                "zoom",
+                "slideShow",
+                "thumbs",
+                "close"
+            ],
+            loop: true,
+            protect: true
+        });
+    });
+</script>

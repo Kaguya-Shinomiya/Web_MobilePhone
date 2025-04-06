@@ -1,0 +1,324 @@
+﻿@{
+    ViewData["Title"] = "AdminChat";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="admin-chat-container">
+    <!-- Chat List -->
+    <div class="chat-list">
+        <h2 class="py-3 text-center">Chat List</h2>
+        <ul id="userChatList">
+            <!-- Danh sách người dùng sẽ được tạo động ở đây -->
+        </ul>
+    </div>
+
+    <!-- Chat Window -->
+    <div class="chat-window">
+        <div class="chat-header p-3">
+            <span class="p-3" id="chatWithUser"></span>
+        </div>
+        <div class="chat-body">
+            <ul id="messagesList"></ul>
+        </div>
+        <div class="chat-footer">
+            <input id="messageInput" type="text" placeholder="Enter your message" />
+            <button id="sendButton" onclick="sendMessageToUser()">Send to User</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .user-name {
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+
+    .admin-chat-container {
+        display: flex;
+        height: 85vh;
+    }
+
+    .chat-list {
+        width: 300px;
+        background-color: #f7f7f7;
+        border-right: 1px solid #ddd;
+        padding: 10px;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+        .chat-list h2 {
+            margin-bottom: 10px;
+        }
+
+        .chat-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .chat-list li {
+            padding: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .chat-list li:hover {
+                background-color: #e6e6e6;
+            }
+
+    .unread-count {
+        background-color: #f00;
+        color: white;
+        border-radius: 50%;
+        font-size: 12px;
+        padding: 2px 6px;
+        margin-left: 10px;
+        display: none;
+    }
+
+    .chat-window {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        position: relative;
+    }
+
+    .chat-header {
+        background: #007bff;
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chat-body {
+        padding: 10px;
+        overflow-y: auto;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .chat-body ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-body li {
+            margin: 5px 0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+            .chat-body li.sent {
+                background-color: #007bff;
+                color: white;
+                align-self: flex-end;
+            }
+
+            .chat-body li.received {
+                background-color: #f1f1f1;
+                color: black;
+                align-self: flex-start;
+            }
+
+    .chat-footer {
+        display: flex;
+        padding: 10px;
+        border-top: 1px solid #ddd;
+    }
+
+        .chat-footer input[type="text"] {
+            flex-grow: 1;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+
+        .chat-footer button {
+            padding: 5px 10px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+    .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+    }
+
+    .message-time {
+        display: block;
+        font-size: 0.75em;
+        margin-top: 5px;
+        text-align: right;
+    }
+
+    .chat-body li.sent .message-time {
+        color: white;
+    }
+
+    .chat-body li.received .message-time {
+        color: black;
+    }
+
+    .active {
+        background-color: #d1e7fd;
+    }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.9/signalr.min.js"></script>
+<script>
+    const connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+    let currentChatUser = null;
+    let unreadMessages = {};
+
+    connection.start().then(() => {
+        console.log("Connected to SignalR.");
+        loadChatUsers();
+    }).catch(err => console.error(err.toString()));
+
+    connection.on("ReceiveMessageFromUser", (user, message) => {
+        if (currentChatUser === user) {
+            const li = document.createElement("li");
+            li.className = 'received';
+            li.textContent = `${message}`;
+
+            const timeSpan = document.createElement("span");
+            timeSpan.className = "message-time";
+            timeSpan.textContent = new Date().toLocaleTimeString();
+            li.appendChild(timeSpan);
+
+            document.getElementById("messagesList").appendChild(li);
+        } else {
+            unreadMessages[user] = (unreadMessages[user] || 0) + 1;
+            updateUnreadCount(user, unreadMessages[user]);
+            showNotification(`Bạn có tin nhắn mới từ ${user}`);
+        }
+    });
+
+    function sendMessageToUser() {
+        const userName = currentChatUser;
+        const message = document.getElementById("messageInput").value;
+
+        if (userName && message) {
+            connection.invoke("SendMessageToUser", userName, message)
+                .then(() => {
+                    const li = document.createElement("li");
+                    li.className = 'sent';
+                    li.textContent = `${message}`;
+                    const timeSpan = document.createElement("span");
+                    timeSpan.className = "message-time";
+                    timeSpan.textContent = new Date().toLocaleTimeString();
+                    li.appendChild(timeSpan);
+                    document.getElementById("messagesList").appendChild(li);
+                    document.getElementById("messageInput").value = "";
+                })
+                .catch(err => console.error("Error sending message: " + err.toString()));
+        } else {
+            console.error("User name and message cannot be empty.");
+        }
+    }
+
+    function selectChat(userName) {
+        currentChatUser = userName;
+        document.getElementById('chatWithUser').textContent = `Chat with ${userName}`;
+        document.getElementById('messagesList').innerHTML = '';
+
+        unreadMessages[userName] = 0;
+        updateUnreadCount(userName, 0);
+
+        document.querySelectorAll('#userChatList li').forEach(li => {
+            li.classList.remove('active');
+        });
+
+        document.querySelectorAll('#userChatList li').forEach(li => {
+            if (li.textContent.trim() === userName) {
+                li.classList.add('active');
+            }
+        });
+
+        connection.invoke("GetChatHistory", userName).then(history => {
+            history.forEach(msg => {
+                const li = document.createElement("li");
+                li.textContent = `${msg.message}`;
+                li.className = msg.senderId === "Admin" ? 'sent' : 'received';
+                const timeSpan = document.createElement("span");
+                timeSpan.className = "message-time";
+                timeSpan.textContent = new Date(msg.timestamp).toLocaleTimeString();
+                li.appendChild(timeSpan);
+                document.getElementById("messagesList").appendChild(li);
+            });
+        }).catch(err => console.error(err.toString()));
+    }
+
+    function loadChatUsers() {
+        connection.invoke("GetChatUsers")
+            .then(users => {
+                const userChatList = document.getElementById("userChatList");
+                userChatList.innerHTML = '';
+                users.forEach(user => {
+                    const li = document.createElement("li");
+                    li.classList.add("d-flex");
+
+                    const span = document.createElement("span");
+                    span.className = 'user-name';
+                    span.textContent = user.userName;
+
+                    li.appendChild(span);
+
+                    const unreadCountSpan = document.createElement("span");
+                    unreadCountSpan.className = 'unread-count';
+                    li.appendChild(unreadCountSpan);
+
+                    li.addEventListener("click", () => selectChat(user.userName));
+                    userChatList.appendChild(li);
+                });
+            })
+            .catch(err => console.error("Error loading users: " + err));
+    }
+
+    function updateUnreadCount(userName, count) {
+        const userItems = document.querySelectorAll("#userChatList li");
+        userItems.forEach(item => {
+            const user = item.querySelector(".user-name").textContent;
+            const unreadSpan = item.querySelector(".unread-count");
+            if (user === userName) {
+                unreadSpan.style.display = count > 0 ? 'inline-block' : 'none';
+                unreadSpan.textContent = count;
+            }
+        });
+    }
+
+    function showNotification(message) {
+        const notification = document.createElement("div");
+        notification.className = "notification";
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+</script>

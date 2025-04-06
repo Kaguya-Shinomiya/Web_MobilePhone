@@ -1,0 +1,90 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@model WebDoDienTu.ViewModels.ProductComparisonViewModel
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<h2>@Localizer["CompareProducts"]</h2>
+
+@if (Model.ProductsToCompare.Count == 0)
+{
+    <p>@Localizer["NoProductsToCompare"]</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th></th>
+                @foreach (var product in Model.ProductsToCompare)
+                {
+                    <th class="text-center">@product.ProductName</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@Localizer["Price"]</td>
+                @foreach (var product in Model.ProductsToCompare)
+                {
+                    <td>@product.Price.ToString("C")</td>
+                }
+            </tr>
+            <tr>
+                <td>@Localizer["Description"]</td>
+                @foreach (var product in Model.ProductsToCompare)
+                {
+                    <td>@product.Description</td>
+                }
+            </tr>
+            <tr>
+                <td>@Localizer["Image"]</td>
+                @foreach (var product in Model.ProductsToCompare)
+                {
+                    <td class="text-center">
+                        <img src="@product.ImageUrl" alt="@product.ProductName" width="150" />
+                    </td>
+                }
+            </tr>
+
+            @if (Model.ProductsToCompare.Count > 0)
+            {
+                var attributeGroups = Model.ProductsToCompare
+                .SelectMany(p => p.Attributes)
+                .GroupBy(a => a.AttributeName)
+                .ToList();
+
+                foreach (var attributeGroup in attributeGroups)
+                {
+                    var attributeName = attributeGroup.Key;
+
+                    <tr>
+                        <td><strong>@attributeName:</strong></td>
+                        @foreach (var product in Model.ProductsToCompare)
+                        {
+                            var value = product.Attributes.FirstOrDefault(a => a.AttributeName == attributeName)?.AttributeValue;
+                            <td>@value</td>
+                        }
+                    </tr>
+                }
+            }
+            <tr>
+                <td></td>
+                @foreach (var product in Model.ProductsToCompare)
+                {
+                    <td class="text-center">
+                        <a href="@Url.Action("RemoveFromComparison", "Product", new { productId = product.ProductId })" class="btn btn-danger btn-sm">
+                            @Localizer["RemoveFromComparison"]
+                        </a>
+                    </td>
+                }
+            </tr>
+        </tbody>
+    </table>
+}
+
+@await Html.PartialAsync("_ProductRecommendationsPartial", ViewBag.Recommendations as IEnumerable<ProductRecommendationModel>)

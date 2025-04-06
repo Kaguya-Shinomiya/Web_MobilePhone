@@ -398,3 +398,10 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+<<<<<<< HEAD
+=======
+
+moblie-shop-440711-780c1259a847.json
+appsettings.json
+__pycache__
+>>>>>>> AI

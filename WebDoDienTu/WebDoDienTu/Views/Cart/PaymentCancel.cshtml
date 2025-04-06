@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Thanh toán bị hủy";
+}
+
+<div class="container">
+    <h1>@ViewData["Title"]</h1>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Message"]
+        </div>
+    }
+
+    <p>Thanh toán của bạn đã bị hủy. Bạn có thể quay lại để thử lại hoặc liên hệ với chúng tôi nếu có bất kỳ vấn đề gì.</p>
+
+    <a href="@Url.Action("Index", "Home")" class="btn btn-primary">Về trang chủ</a>
+</div>

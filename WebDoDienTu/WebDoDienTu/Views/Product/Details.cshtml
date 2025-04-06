@@ -1,0 +1,584 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@model WebDoDienTu.Models.Product
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    var successMessage = TempData["SuccessMessage"] as string;
+    var displayRating = Math.Round((double)ViewBag.AverageRating, 1);
+}
+
+<style>
+    .watermark-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        pointer-events: none;
+    }
+
+    /* Popup styles */
+    .success-popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #fff;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        z-index: 1000;
+        width: 400px;
+        max-width: 90%;
+    }
+
+        .success-popup .icon {
+            font-size: 60px;
+            color: #28a745;
+            margin-bottom: 20px;
+            display: inline-block;
+            border: 3px solid #28a745;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
+        }
+
+            .success-popup .icon.animate {
+                animation: checkmark 0.5s ease-in-out forwards;
+            }
+
+    @@keyframes checkmark {
+        0% {
+            transform: scale(0);
+            opacity: 0;
+        }
+
+        50% {
+            transform: scale(1.2);
+            opacity: 1;
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    .success-popup h3 {
+        margin: 0 0 15px;
+        font-size: 28px;
+        color: #333;
+        font-weight: bold;
+    }
+
+    .success-popup p {
+        margin: 0 0 25px;
+        color: #666;
+        font-size: 18px;
+    }
+
+    .success-popup .btn-ok {
+        background-color: #6f42c1;
+        color: #fff;
+        border: none;
+        padding: 10px 30px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        text-transform: uppercase;
+        transition: background-color 0.3s;
+    }
+
+        .success-popup .btn-ok:hover {
+            background-color: #5a2e9d;
+        }
+
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    /* Star rating styles */
+    .star-label {
+        cursor: pointer;
+        margin-right: 5px;
+        font-size: 24px; /* Tăng kích thước sao để dễ nhấp */
+    }
+
+        .star-label i {
+            transition: color 0.2s ease;
+            color: #ccc; /* Màu mặc định cho sao chưa chọn */
+        }
+
+            .star-label:hover i,
+            .star-label i.checked {
+                color: #ffc107 !important; /* Màu vàng khi hover hoặc được chọn */
+            }
+</style>
+
+<!-- Single Page Header start -->
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">@Localizer["PageHeader"]</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">@Localizer["BreadcrumbHome"]</a></li>
+        <li class="breadcrumb-item active text-white">@Localizer["BreadcrumbDetail"]</li>
+    </ol>
+</div>
+<!-- Single Page Header End -->
+<!-- Single Product Start -->
+<div class="container-fluid py-5 mt-5" style="margin: -150px 0">
+    <div class="container py-5">
+        <div class="row g-4 mb-5">
+            <div class="col-lg-8 col-xl-9">
+                <!-- Product Name and Rating -->
+                <div class="mb-4">
+                    <h2 class="fw-bold">@Model.ProductName</h2>
+                    <div class="d-flex align-items-center" style="font-size: 18px;">
+                        <!-- Average Rating Display -->
+                        @for (int i = 0; i < 5; i++)
+                        {
+                            if (i < Math.Floor(displayRating))
+                            {
+                                <i class="fa fa-star text-warning"></i>
+                            }
+                            else if (i == Math.Floor(displayRating) && displayRating - Math.Floor(displayRating) >= 0.5)
+                            {
+                                <i class="fa fa-star-half text-warning"></i>
+                            }
+                            else
+                            {
+                                <i class="fa fa-star"></i>
+                            }
+                        }
+                        <span class="ms-2">(@Model.Reviews.Count reviews)</span>
+                        <span class="ms-2">(@displayRating)</span>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="border rounded position-relative">
+                            <div id="gallery-container" class="d-flex justify-content-center">
+                                <!-- Hiển thị ảnh chính -->
+                                <a href="@Model.ImageUrl" data-fancybox="gallery">
+                                    <img src="@Model.ImageUrl" class="img-fluid rounded" alt="Main Product Image">
+                                </a>
+                                <!-- Hiển thị các ảnh bổ sung -->
+                                @if (Model.Images != null && Model.Images.Any())
+                                {
+                                    foreach (var image in Model.Images)
+                                    {
+                                        <a href="@image.Url" hidden data-fancybox="gallery">
+                                            <img src="@image.Url" class="img-fluid rounded mt-2" alt="Additional Product Image">
+                                        </a>
+                                    }
+                                }
+                                <!-- Hiển thị video -->
+                                @if (Model.VideoUrl != null)
+                                {
+                                    <a href="@Model.VideoUrl" hidden data-fancybox="gallery" data-type="iframe">
+                                        <img src="@Model.ImageUrl" class="img-fluid rounded mt-2" alt="Additional Product Image">
+                                    </a>
+                                }
+                            </div>
+
+                            @if (Model.StockQuantity <= 0)
+                            {
+                                <div class="watermark-overlay">
+                                    @Localizer["OutOfStock"]
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <h5 class="fw-bold mb-3">@Model.Price.ToString("N0") VND</h5>
+                        <p class="mb-4">@Model.Description</p>
+
+                        <!-- Quantity and Add to Cart Section -->
+                        <form class="my-4" asp-action="AddToCart" asp-controller="Cart" asp-route-productId="@Model.ProductId">
+                            <div class="input-group quantity mb-5" style="width: 100px;">
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-sm btn-minus bg-light border" disabled="@(Model.StockQuantity <= 0)">
+                                        <i class="fa fa-minus"></i>
+                                    </button>
+                                </div>
+                                <input type="text" class="form-control form-control-sm text-center border-0" value="1" name="quantity" disabled="@(Model.StockQuantity <= 0)">
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-sm btn-plus bg-light border" disabled="@(Model.StockQuantity <= 0)">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-center border border-3">
+                                <button class="btn px-3 text-primary" disabled="@(Model.StockQuantity <= 0)">
+                                    <i class="fa fa-shopping-bag me-2 text-primary"> @Localizer["AddToCart"]</i>
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Wishlist and Comparison Buttons -->
+                        <div class="d-flex flex-row justify-content-between">
+                            <form asp-action="AddToWishlist" asp-controller="Wishlist" method="post">
+                                <input type="hidden" name="productId" value="@Model.ProductId" />
+                                <button class="btn border border border-3 px-3 text-primary" type="submit">
+                                    <i class="fa fa-heart me-2 text-primary"></i>@Localizer["AddToWishlist"]
+                                </button>
+                            </form>
+                            <a asp-controller="Product" asp-action="AddToComparison" asp-route-productId="@Model.ProductId" class="btn border border border-3 px-3 text-primary">
+                                <i class="fa fa-shopping-bag me-2 text-primary"></i>@Localizer["AddToComparison"]
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Product Attributes Table Start -->
+                    <div class="product-attributes mb-4">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">
+                                        @Localizer["TechnicalDetails"]
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var productattribute in Model.Attributes)
+                                {
+                                    <tr>
+                                        <td>@productattribute.AttributeName</td>
+                                        <td>@productattribute.AttributeValue</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Product Attributes Table End -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Review Section -->
+        <div class="border border-light-subtle p-3 mb-5">
+            <form id="reviewForm" asp-action="AddReview" asp-controller="ProductReview" method="post">
+                <h4 class="mb-5 fw-bold">@Localizer["LeaveReview"]</h4>
+                <input type="hidden" name="productId" value="@Model.ProductId" />
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="border-bottom rounded">
+                            <input type="text" name="name" id="name" class="form-control border-0" placeholder="@Localizer["YourName"]" required />
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="border-bottom rounded">
+                            <input type="email" name="email" id="email" class="form-control border-0" placeholder="@Localizer["YourEmail"]" required />
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="border-bottom rounded my-4">
+                            <textarea name="comment" id="comment" class="form-control border-0" cols="30" rows="8" placeholder="@Localizer["YourReview"]" required spellcheck="false"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="d-flex justify-content-between py-3 mb-5">
+                            <div class="d-flex align-items-center">
+                                <p class="mb-0 me-3">Please rate:</p>
+                                <div class="d-flex align-items-center" id="ratingStars">
+                                    <input type="radio" name="rating" value="1" id="star1" class="d-none" required />
+                                    <label for="star1" class="star-label">
+                                        <i class="fa fa-star" data-value="1"></i>
+                                    </label>
+                                    <input type="radio" name="rating" value="2" id="star2" class="d-none" />
+                                    <label for="star2" class="star-label">
+                                        <i class="fa fa-star" data-value="2"></i>
+                                    </label>
+                                    <input type="radio" name="rating" value="3" id="star3" class="d-none" />
+                                    <label for="star3" class="star-label">
+                                        <i class="fa fa-star" data-value="3"></i>
+                                    </label>
+                                    <input type="radio" name="rating" value="4" id="star4" class="d-none" />
+                                    <label for="star4" class="star-label">
+                                        <i class="fa fa-star" data-value="4"></i>
+                                    </label>
+                                    <input type="radio" name="rating" value="5" id="star5" class="d-none" />
+                                    <label for="star5" class="star-label">
+                                        <i class="fa fa-star" data-value="5"></i>
+                                    </label>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary border border-secondary text-white rounded-pill px-4 py-3" id="submitReviewButton">
+                                @Localizer["SubmitReview"]
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="border border-light-subtle p-2 mb-5">
+            <h2>@Localizer["Reviews"]</h2>
+            <div id="reviews">
+                @if (Model.Reviews.Any())
+                {
+                    var reviews = Model.Reviews.ToList();
+                    for (int i = 0; i < reviews.Count; i++)
+                    {
+                        if (!reviews[i].IsHidden)
+                        {
+                            <div class="review-item border border-light-subtle p-1 my-1 rounded" style="display: @(i < 5 ? "block" : "none");">
+                                <strong>@reviews[i].YourName</strong>
+                                <div class="rating">
+                                    @for (int j = 0; j < 5; j++)
+                                    {
+                                        if (j < reviews[i].Rating)
+                                        {
+                                            <i class="fas fa-star text-warning"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="far fa-star text-warning"></i>
+                                        }
+                                    }
+                                </div>
+                                <p class="mt-2">Comment: @reviews[i].Comment</p>
+                                <p><small>Posted on: @reviews[i].ReviewDate.ToString("MMMM dd, yyyy")</small></p>
+                            </div>
+                        }
+                    }
+                }
+                else
+                {
+                    <p>@Localizer["NoReviewsYet"]</p>
+                }
+            </div>
+            <div class="text-center mt-3">
+                <button id="loadMoreBtn" class="btn btn-primary" onclick="loadMoreReviews()">@Localizer["LoadMore"]</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Single Product End -->
+<!-- Popup thành công -->
+<div class="overlay" id="overlay"></div>
+<div class="success-popup" id="successPopup">
+    <div class="icon">✔</div>
+    <h3>Success</h3>
+    <p>Đánh giá thành công!</p>
+    <button class="btn-ok" id="btnOk">OK</button>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    @using Newtonsoft.Json
+    var err = @Html.Raw(JsonConvert.SerializeObject(TempData["Error"]));
+    if (err != null) {
+        alert(err);
+    }
+
+    // Xử lý gửi đánh giá bằng AJAX với loading state
+    $('#submitReviewButton').click(function(e) {
+        e.preventDefault();
+
+        var button = $(this);
+        button.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Đang gửi...');
+
+        var form = $('#reviewForm');
+        var formData = form.serialize();
+
+        $.ajax({
+            url: form.attr('action'),
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                button.prop('disabled', false).text('@Localizer["SubmitReview"]');
+                if (response.success) {
+                    // Hiển thị popup thành công
+                    $('#successPopup').fadeIn();
+                    $('#overlay').fadeIn();
+                    // Thêm hiệu ứng động cho biểu tượng dấu tích
+                    $('#successPopup .icon').addClass('animate');
+                    addReviewToList(response.reviewId);
+                    // Làm mới cảm xúc liên tục mỗi 0.2 giây trong 2 giây
+                    let attempts = 0;
+                    const maxAttempts = 10; // Kiểm tra 10 lần, mỗi lần 0.2 giây (tổng 2 giây)
+                    const interval = setInterval(() => {
+                        refreshEmotion(response.reviewId);
+                        attempts++;
+                        // Dừng khi Emotions khác Pending hoặc hết số lần kiểm tra
+                        $.ajax({
+                            url: '/ProductReview/GetReviewById',
+                            type: 'GET',
+                            data: { reviewId: response.reviewId },
+                            success: function(reviewData) {
+                                if (reviewData && (reviewData.emotions !== "Pending" || attempts >= maxAttempts)) {
+                                    clearInterval(interval);
+                                }
+                            }
+                        });
+                    }, 200); // Kiểm tra mỗi 0.2 giây (200ms)
+                    form[0].reset();
+                    // Đặt lại trạng thái sao về mặc định
+                    $('.star-label i').removeClass('checked');
+                    $('input[name="rating"]').prop('checked', false);
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                button.prop('disabled', false).text('@Localizer["SubmitReview"]');
+                alert('Đã xảy ra lỗi khi gửi đánh giá: ' + error);
+                console.log('Chi tiết lỗi:', xhr.responseText);
+            }
+        });
+    });
+
+    // Xử lý nút OK
+    $('#btnOk').click(function() {
+        $('#successPopup').fadeOut();
+        $('#overlay').fadeOut();
+    });
+
+    // Xử lý chọn sao
+    $(document).ready(function() {
+        var maxStars = 5; // Số sao tối đa, có thể thay đổi thành 4 hoặc 5 tùy ý
+
+        // Ẩn các sao vượt quá số sao tối đa
+        $('.star-label').each(function() {
+            var value = $(this).find('i').data('value');
+            if (value > maxStars) {
+                $(this).hide();
+                $(this).prev('input').removeAttr('required'); // Bỏ yêu cầu cho radio button bị ẩn
+            }
+        });
+
+        // Xử lý khi nhấp vào sao
+        $('.star-label').click(function() {
+            var value = $(this).find('i').data('value');
+
+            // Xóa trạng thái checked của tất cả sao
+            $('.star-label i').removeClass('checked');
+
+            // Tô màu vàng cho các sao từ 1 đến giá trị được chọn
+            $('.star-label').each(function() {
+                var starValue = $(this).find('i').data('value');
+                if (starValue <= value && starValue <= maxStars) {
+                    $(this).find('i').addClass('checked');
+                }
+            });
+
+            // Đặt giá trị cho radio button tương ứng
+            $('input[name="rating"][value="' + value + '"]').prop('checked', true);
+            console.log('Selected rating: ' + value); // Debug để kiểm tra
+        });
+
+        // Đặt giá trị mặc định cho sao (nếu có)
+        var defaultRating = $('input[name="rating"]:checked').val() || 0;
+        if (defaultRating) {
+            $('.star-label').each(function() {
+                var starValue = $(this).find('i').data('value');
+                if (starValue <= defaultRating && starValue <= maxStars) {
+                    $(this).find('i').addClass('checked');
+                }
+            });
+        }
+    });
+
+    // Hàm thêm đánh giá mới vào danh sách
+    function addReviewToList(reviewId) {
+        $.ajax({
+            url: '/ProductReview/GetReviewById',
+            type: 'GET',
+            data: { reviewId: reviewId },
+            success: function(reviewData) {
+                if (reviewData) {
+                    var reviewHtml = `
+                        <div class="review-item border border-light-subtle p-1 my-1 rounded" data-review-id="${reviewId}">
+                            <strong>${reviewData.yourName}</strong>
+                            <div class="rating">
+                                ${getRatingStars(reviewData.rating)}
+                            </div>
+                            <p class="mt-2">Comment: ${reviewData.comment}</p>
+                            <p><small>Posted on: ${new Date(reviewData.reviewDate).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })}</small></p>                          
+                        </div>
+                    `;
+                    $('#reviews').prepend(reviewHtml);
+                }
+            },
+            error: function() {
+                console.log('Lỗi khi lấy thông tin đánh giá mới');
+            }
+        });
+    }
+
+    // Hàm làm mới cảm xúc
+    function refreshEmotion(reviewId) {
+        $.ajax({
+            url: '/ProductReview/GetReviewById',
+            type: 'GET',
+            data: { reviewId: reviewId },
+            success: function(reviewData) {
+                if (reviewData && reviewData.emotions !== "Pending") {
+                    $(`#reviews .review-item[data-review-id="${reviewId}"] .emotion-text`).text(`Cảm xúc: ${reviewData.emotions}`);
+                }
+            },
+            error: function() {
+                console.log('Lỗi khi làm mới cảm xúc');
+            }
+        });
+    }
+
+    // Hàm tạo sao dựa trên rating
+    function getRatingStars(rating) {
+        var stars = '';
+        for (var i = 1; i <= 5; i++) {
+            stars += i <= rating ? '<i class="fas fa-star text-warning"></i>' : '<i class="far fa-star text-warning"></i>';
+        }
+        return stars;
+    }
+
+    // Xử lý Fancybox
+    document.addEventListener('DOMContentLoaded', function () {
+        var galleryItems = document.querySelectorAll('[data-fancybox="gallery"]');
+        galleryItems.forEach(function (item) {
+            item.addEventListener('click', function (event) {
+                Fancybox.open(galleryItems, {
+                    buttons: ['zoom', 'slideShow', 'thumbs', 'close'],
+                    loop: true,
+                    protect: true
+                });
+            });
+        });
+    });
+
+    // Hàm load more reviews
+    function loadMoreReviews() {
+        var reviews = document.querySelectorAll('.review-item');
+        var visibleCount = document.querySelectorAll('.review-item[style*="display: block"]').length;
+        for (var i = visibleCount; i < reviews.length && i < visibleCount + 5; i++) {
+            reviews[i].style.display = 'block';
+        }
+        if (visibleCount + 5 >= reviews.length) {
+            document.getElementById('loadMoreBtn').style.display = 'none';
+        }
+    }
+</script>

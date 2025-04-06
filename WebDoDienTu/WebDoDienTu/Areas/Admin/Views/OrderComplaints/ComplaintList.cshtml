@@ -1,0 +1,159 @@
+﻿@model IEnumerable<WebDoDienTu.Models.OrderComplaint>
+
+@{
+    ViewData["Title"] = "ComplaintList";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Danh mục khiếu nại</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li class="breadcrumb-item active">Complaints</li>
+        </ol>
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-table me-1"></i>
+            </div>
+            <div class="card-body">
+                <table id="datatablesSimple">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Mã đơn hàng</th>
+                            <th>Người dùng</th>
+                            <th>Nội dung</th>
+                            <th>Ngày đăng</th>
+                            <th>Trạng thái</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>STT</th>
+                            <th>Mã đơn hàng</th>
+                            <th>Người dùng</th>
+                            <th>Nội dung</th>
+                            <th>Ngày đăng</th>
+                            <th>Trạng thái</th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                        @{
+                            int soThuTu = 1;                      
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @soThuTu
+                                    </td>    
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Order.Id)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.User.UserName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ComplaintDescription)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ComplaintDate)
+                                    </td>
+                                    <td>
+                                        <form asp-action="ResolveComplaint" method="post">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <select name="orderComplaintStatus" class="form-control" onchange="this.form.submit()">
+                                                @foreach (var status in Enum.GetValues(typeof(WebDoDienTu.Models.OrderComplaintStatus)))
+                                                {
+                                                    if (item.Status == (WebDoDienTu.Models.OrderComplaintStatus)status)
+                                                    {
+                                                        <option value="@status" selected>@status</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@status">@status</option>
+                                                    }                                                  
+                                                }
+                                            </select>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
+                                                data-complaint-id="@item.Id" data-complaint-status="@item.Status">
+                                            Xử lý
+                                        </button>
+                                    </td>
+                                </tr>
+                                soThuTu++;
+                            }                            
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+
+<!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Xử lý Khiếu nại</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="complaintForm" method="post" action="@Url.Action("ResolveComplaint", "OrderComplaints")">
+                    <input type="hidden" name="id" id="complaintId" />
+                    <div class="mb-3">
+                        <label for="statusSelect" class="form-label">Trạng thái</label>
+                        <select class="form-select" name="orderComplaintStatus" id="statusSelect" required>
+                            <option value="Pending">Đang giải quyết</option>
+                            <option value="Resolved">Đã giải quyết</option>
+                            <option value="Rejected">Từ chối</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="adminResponse" class="form-label">Phản hồi của quản trị viên</label>
+                        <textarea class="form-control" name="adminResponse" id="adminResponse" rows="3" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="submitComplaintBtn">Gửi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var complaintModal = document.getElementById('staticBackdrop');
+        complaintModal.addEventListener('show.bs.modal', function (event) {
+
+            var button = event.relatedTarget;
+            var complaintId = button.getAttribute('data-complaint-id');
+            var complaintStatus = button.getAttribute('data-complaint-status');
+            console.log(complaintId)
+            console.log(complaintStatus)
+
+
+            var complaintIdInput = complaintModal.querySelector('#complaintId');
+            complaintIdInput.value = complaintId;
+            console.log(complaintIdInput)
+
+            var statusSelect = complaintModal.querySelector('#statusSelect');
+            statusSelect.value = complaintStatus;
+        });
+
+        var submitButton = document.getElementById('submitComplaintBtn');
+        submitButton.addEventListener('click', function () {
+            var form = document.getElementById('complaintForm');
+            form.submit();
+        });
+    });
+</script>

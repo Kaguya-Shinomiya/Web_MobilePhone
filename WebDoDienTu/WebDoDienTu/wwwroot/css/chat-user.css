@@ -1,0 +1,132 @@
+﻿.chat {
+    position: fixed;
+    right: 30px;
+    bottom: 100px;
+    display: flex;
+    width: 45px;
+    height: 45px;
+    align-items: center;
+    justify-content: center;
+    transition: 0.5s;
+    z-index: 99;
+    cursor: pointer;
+}
+
+.chat-window {
+    position: fixed;
+    right: 30px;
+    bottom: 160px;
+    width: 300px;
+    max-height: 400px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    display: none;
+    flex-direction: column;
+    z-index: 100;
+}
+
+.chat-header {
+    background: #007bff;
+    color: #fff;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.chat-body {
+    padding: 10px;
+    overflow-y: auto;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+    .chat-body ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-body li {
+        margin: 5px 0;
+        padding: 8px 12px;
+        border-radius: 8px;
+        max-width: 80%;
+    }
+
+        .chat-body li.sent {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .chat-body li.received {
+            background-color: #f1f1f1;
+            color: black;
+            align-self: flex-start;
+        }
+
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.chat-footer {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+}
+
+    .chat-footer input[type="text"] {
+        flex-grow: 1;
+        padding: 5px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-right: 5px;
+    }
+
+    .chat-footer button {
+        padding: 5px 10px;
+        border: none;
+        background-color: #007bff;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 100px;
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.message-time {
+    display: block;
+    font-size: 0.75em;
+    margin-top: 5px;
+    text-align: right;
+}
+
+.chat-body li.sent .message-time {
+    color: white;
+}
+
+.chat-body li.received .message-time {
+    color: black;
+}
